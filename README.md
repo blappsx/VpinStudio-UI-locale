@@ -37,8 +37,3 @@ It provides a clean and efficient way to **browse, launch, and manage Visual Pin
 Developed by **Cédric Blap / ChatGPT**  
 Powered by the **[VPin Studio backend](https://github.com/syd711/vpin-studio)** (open-source project).  
 
----
-
-## 📄 License
-Free to use and adapt for personal or internal use.  
-Based on the open-source principles of the VPin Studio ecosystem.
