@@ -37,3 +37,7 @@ It provides a clean and efficient way to **browse, launch, and manage Visual Pin
 Developed by **Cédric Blap / ChatGPT**  
 Powered by the **[VPin Studio backend](https://github.com/syd711/vpin-studio)** (open-source project).  
 
+<img width="1096" height="862" alt="image" src="https://github.com/user-attachments/assets/7668af82-38cf-4d37-8177-55b9e515313b" />
+<img width="1091" height="1022" alt="image" src="https://github.com/user-attachments/assets/4ef3e1ad-8050-4213-93ad-ab9361ef8c50" />
+<img width="843" height="930" alt="image" src="https://github.com/user-attachments/assets/03a06def-6cb6-4a66-8f76-797554b42306" />
+<img width="607" height="753" alt="image" src="https://github.com/user-attachments/assets/7a6aef2f-9e52-406f-9d15-4c1bd256d55f" />
