@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gestion des Tables VpinStudio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="./styles.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="wrap">
+    <div class="card mb-12">
+      <h1 class="page-title">Gestion des Tables VpinStudio</h1>
+
+      <!-- Ligne 1 : Base + Emulateur + Actualiser -->
+      <div class="row gap-12">
+        <div class="flex-1">
+          <label for="base" class="muted">Base API</label><br />
+          <input id="base" type="text" value="http://192.168.0.5:8089/api/v1" />
+        </div>
+        <div>
+          <label for="emu" class="muted">Émulateur</label><br />
+          <select id="emu" style="min-width:240px;"></select>
+        </div>
+        <div class="align-end">
+          <button id="refresh">Actualiser</button>
+        </div>
+      </div>
+
+      <!-- Ligne 2 : Compteur + Recherche -->
+      <div class="row gap-12 between mt-6">
+        <div class="counter" id="counter">0 / 0</div>
+        <label class="search">
+          <input id="search" type="search" placeholder="Rechercher une table ou un ID…" />
+        </label>
+      </div>
+    </div>
+
+	<!-- Bouton Restart + Hooks -->
+	<div class="card mb-12" id="controls">
+	  <div class="row gap-12">
+		<button id="restart">🔁 Restart PinupPopper</button>
+
+		<!-- Barre de hooks (boutons générés dynamiquement) -->
+		<div id="hooksBar" class="hooks-bar" aria-label="Hooks disponibles"></div>
+	  </div>
+	</div>
+
+
+    <div id="out" class="card">
+      <div class="muted">Tables non chargées. Clique sur <strong>Actualiser</strong>.</div>
+    </div>
+    <div id="status" class="status"></div>
+  </div>
+
+  <!-- Modal fiche technique -->
+  <div id="modal" class="modal" aria-hidden="true">
+    <div id="modal-backdrop" class="modal-backdrop"></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+		<div class="modal-header">
+		  <div class="modal-header-left">
+			<img id="modal-wheel" class="modal-wheel" alt="Wheel" />
+			<h2 id="modal-title" class="modal-title">Fiche technique</h2>
+		  </div>
+		  <button id="modal-close" class="modal-close" aria-label="Fermer">✕</button>
+		</div>
+
+      <div id="modal-body" class="modal-body"></div>
+      <div class="modal-footer">
+        <button id="modal-close-2" class="btn">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
