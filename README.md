@@ -31,7 +31,8 @@ It provides a clean and efficient way to **browse, launch, and manage Visual Pin
 1. Copy the three files (`index.html`, `styles.css`, `app.js`) into any web directory.  
 2. Edit the default API base address in the input field (e.g. `http://192.168.0.5:8089/api/v1`).  
 3. Click **Refresh** to load emulators and tables.  
-4. Interact directly with your VPin Studio setup!
+4. To add custom **Hooks**, place your `.bat` files in the folder: `VPin-Studio\resources\hooks`
+5. Interact directly with your VPin Studio setup!
 
 ---
 
