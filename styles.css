@@ -344,3 +344,23 @@ tr.row-clickable:active { background: rgba(56,189,248,0.18); }
   content: "🔊";
 }
 
+/* Ajustement de l'avatar sur mobile */
+@media (max-width: 640px) {
+  .brand {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .avatar {
+    width: 40vw;           /* taille relative à la largeur de l’écran */
+    max-width: 120px;      /* limite max pour éviter une image géante */
+    height: auto;          /* conserve le ratio */
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+
+  .brand-meta {
+    align-items: center;
+  }
+}
