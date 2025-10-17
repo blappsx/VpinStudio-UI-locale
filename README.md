@@ -14,7 +14,9 @@ It provides a clean and efficient way to **browse, launch, and manage Visual Pin
 - **Hook integration** (execute `.bat` files via POST)  
 - System control buttons: **Restart**, **Mute**, and **Unmute**  
 - Fully **responsive design**, optimized for both desktop and mobile  
-- Dark theme with a focus on usability and clarity  
+- Dark theme with a focus on usability and clarity
+  
+<img width="1084" height="133" alt="image" src="https://github.com/user-attachments/assets/5a1a2946-50c0-4979-9d23-1d048f7457ef" />
 
 ---
 
