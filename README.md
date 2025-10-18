@@ -49,7 +49,7 @@ You can open this html page without any webserver. Either on your phone or your 
 1. Copy all project files (`index.html`, `styles.css`, `/js/`) into any local web directory.  
 2. Edit the default API base address in the input field (e.g. `http://192.168.0.5:8089/api/v1`).  
 3. Click **Refresh** to load emulators and tables.  
-4. To add custom **Hooks**, place your `.bat` files in the folder:  `VPin-Studio\resources\hooks` on the VPin-Studio cab server.  
+4. (optional) To add custom **Hooks**, place your `.bat` files in the folder:  `VPin-Studio\resources\hooks` on the VPin-Studio cab server.  
 5. Interact directly with your VPin Studio setup!  
 
 ---
