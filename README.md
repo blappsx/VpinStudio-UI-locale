@@ -2,6 +2,7 @@
 
 A modern and responsive **web interface** designed to interact with the [VPin Studio](https://github.com/syd711/vpin-studio) API.  
 It provides a clean and efficient way to **browse, launch, and manage Visual Pinball tables** directly from your browser.
+
 You can open this html page without any webserver. Either on your phone or your computer. Simply unzip file and open index.html
 
 ---
