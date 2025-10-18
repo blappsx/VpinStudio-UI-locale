@@ -17,7 +17,8 @@
  *  Versions :
  *    - v1.0.0 – 2025-10-14 – Première version stable
  *    - v1.1.0 – 2025-10-16 – Hooks en boutons + Mute/Unmute + améliorations UI
- *    - v1.2.0 – 2025-10-17 – Avatar + System header + libellé Restart dynamique
+ *    - v1.2.0 – 2025-10-17 – Avatar + System header + libellé Restart dynamique - leprinco
+ *    - v1.3.0 – 2025-10-18 – Traduction du projet - leprinco
  *
  *  Configuration par défaut :
  *    - Base API : http://192.168.0.5:8089/api/v1 (modifiable dans l’interface)
@@ -59,12 +60,13 @@
  *    - hooks.js   : barre de hooks, mute/unmute
  *    - header.js  : avatar + systemName + version
  *    - frontend.js: libellé dynamique du bouton Restart
+ *    - i18n.js    : gestion de la traduction
  *
  *  Licence :
  *    - MIT License
  *
  *  Dernière modification :
- *    - 2025-10-17 – Cédric Blap / ChatGPT
+ *    - 2025-10-18 – Cédric Blap / ChatGPT
  * ============================================================================
  */
 import { state, initDOM } from './state.js';
@@ -75,6 +77,7 @@ import { wireModalClose } from './modal.js';
 import { loadHooksUI, wireHooksBar } from './hooks.js';
 import { loadSystemHeader } from './header.js';
 import { updateRestartButtonLabel } from './frontend.js';
+import { setLang, applyI18nToDOM } from './i18n.js';
 
 
 function applyPrefsToUI() {
@@ -203,14 +206,36 @@ function wireHeader() {
 
 // ---------- BOOT ----------
 (async function boot(){
-  initDOM();
-  applyPrefsToUI();
-  await updateRestartButtonLabel();
-  await loadSystemHeader();
-  wireModalClose();
-  wireHooksBar();
-  wireTableActions();
-  wireHeader();
+	initDOM();
+	// Langue : depuis prefs, sinon FR par défaut
+	setLang(state.prefs.lang || 'fr');
+	applyI18nToDOM();
+	// positionne la valeur du select
+	if (state.dom.langSelect) state.dom.langSelect.value = state.prefs.lang || 'fr';
+
+	applyPrefsToUI();
+	await updateRestartButtonLabel();
+	await loadSystemHeader();
+	wireModalClose();
+	wireHooksBar();
+	wireTableActions();
+	wireHeader();
+	
+	if (state.dom.langSelect) {
+	  state.dom.langSelect.addEventListener('change', async () => {
+		state.prefs.lang = state.dom.langSelect.value;
+		savePrefs(state.prefs);
+		setLang(state.prefs.lang);
+		applyI18nToDOM();
+		// Met à jour ce qui dépend de la langue :
+		// - libellé Restart dynamique
+		// - re-render du tableau (boutons/headers)
+		await updateRestartButtonLabel();
+		applySortFilter();
+		renderTable();
+	  });
+	}
+
 
   await loadEmulatorsUI();
   if (state.prefs.emuId && [...state.dom.emuSelect.options].some(o => String(o.value)===String(state.prefs.emuId))) {

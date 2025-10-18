@@ -2,6 +2,7 @@ import { state } from './state.js';
 import { esc } from './utils.js';
 import { getTableDetails } from './api.js';
 import { ensureWheelForGame } from './media.js';
+import { t } from './i18n.js';
 
 export function openModal() {
   const { modal } = state.dom;
@@ -26,7 +27,7 @@ export function closeModal() {
 export async function openDetails(gameId){
   const { modalTitle, modalBody } = state.dom;
   try {
-    modalTitle.textContent = 'Fiche technique';
+    modalTitle.textContent = t('techSheet');
     modalBody.innerHTML = `<div class="kmuted">Loading…</div>`;
     openModal();
 
@@ -62,28 +63,28 @@ export async function openDetails(gameId){
     const link2    = d.webLink2Url ? `<a href="${esc(d.webLink2Url)}" target="_blank" rel="noopener">${esc(d.webLink2Url)}</a>` : '—';
 
     modalBody.innerHTML = `
-      <dl class="kv">
-        <dt>Name</dt><dd>${esc(title)}</dd>
-        <dt>File</dt><dd class="kmono">${safe(d.gameFileName)}</dd>
-        <dt>Manufacturer</dt><dd>${safe(d.manufacturer)}</dd>
-        <dt>Year</dt><dd>${safe(d.gameYear)}</dd>
-        <dt>Version</dt><dd>${safe(d.gameVersion)}</dd>
-        <dt>Designer</dt><dd>${safe(d.designedBy)}</dd>
-        <dt>Authors</dt><dd>${safe(d.author)}</dd>
-        <dt>Themes</dt><dd>${themes.length ? listChips(themes) : '—'}</dd>
-        <dt>Tags</dt><dd>${tags.length ? listChips(tags) : '—'}</dd>
-        <dt>Players</dt><dd>${safe(d.numberOfPlayers)}</dd>
-        <dt>Plays</dt><dd>${safe(d.numberPlays)}</dd>
-        <dt>Last played</dt><dd>${fmtDate(d.lastPlayed)}</dd>
-        <dt>Added</dt><dd>${fmtDate(d.dateAdded)}</dd>
-        <dt>Modified</dt><dd>${fmtDate(d.dateModified)}</dd>
-        <dt>ROM</dt><dd class="kmono">${safe(d.romName || d.romAlt)}</dd>
-        <dt>IPDB</dt><dd>${d.ipdbnum ? `<a href="https://www.ipdb.org/machine.cgi?id=${esc(d.ipdbnum)}" target="_blank" rel="noopener">${esc(d.ipdbnum)}</a>` : '—'}</dd>
-        <dt>Link</dt><dd>${linkMain}</dd>
-        <dt>Link 2</dt><dd>${link2}</dd>
-        <dt>Launchers</dt><dd>${launchers.length ? listChips(launchers) : '—'}</dd>
-        <dt>Notes</dt><dd class="kblock">${safe(d.gDetails || d.gNotes || d.notes)}</dd>
-      </dl>
+		<dl class="kv">
+		  <dt>${t('mName')}</dt><dd>${esc(title)}</dd>
+		  <dt>${t('mFile')}</dt><dd class="kmono">${safe(d.gameFileName)}</dd>
+		  <dt>${t('mManufacturer')}</dt><dd>${safe(d.manufacturer)}</dd>
+		  <dt>${t('mYear')}</dt><dd>${safe(d.gameYear)}</dd>
+		  <dt>${t('mVersion')}</dt><dd>${safe(d.gameVersion)}</dd>
+		  <dt>${t('mDesigner')}</dt><dd>${safe(d.designedBy)}</dd>
+		  <dt>${t('mAuthors')}</dt><dd>${safe(d.author)}</dd>
+		  <dt>${t('mThemes')}</dt><dd>${themes.length ? listChips(themes) : '—'}</dd>
+		  <dt>${t('mTags')}</dt><dd>${tags.length ? listChips(tags) : '—'}</dd>
+		  <dt>${t('mPlayers')}</dt><dd>${safe(d.numberOfPlayers)}</dd>
+		  <dt>${t('mPlays')}</dt><dd>${safe(d.numberPlays)}</dd>
+		  <dt>${t('mLastPlayed')}</dt><dd>${fmtDate(d.lastPlayed)}</dd>
+		  <dt>${t('mAdded')}</dt><dd>${fmtDate(d.dateAdded)}</dd>
+		  <dt>${t('mModified')}</dt><dd>${fmtDate(d.dateModified)}</dd>
+		  <dt>${t('mROM')}</dt><dd class="kmono">${safe(d.romName || d.romAlt)}</dd>
+		  <dt>${t('mIPDB')}</dt><dd>${d.ipdbnum ? `<a href="https://www.ipdb.org/machine.cgi?id=${esc(d.ipdbnum)}" target="_blank" rel="noopener">${esc(d.ipdbnum)}</a>` : '—'}</dd>
+		  <dt>${t('mLink')}</dt><dd>${linkMain}</dd>
+		  <dt>${t('mLink2')}</dt><dd>${link2}</dd>
+		  <dt>${t('mLaunchers')}</dt><dd>${launchers.length ? listChips(launchers) : '—'}</dd>
+		  <dt>${t('mNotes')}</dt><dd class="kblock">${safe(d.gDetails || d.gNotes || d.notes)}</dd>
+		</dl>
     `;
   } catch(err){
     modalBody.innerHTML = `<div class="err">Error: ${esc(err.message||err)}</div>`;

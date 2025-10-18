@@ -10,31 +10,41 @@
 <body>
   <div class="wrap">
     <div class="card mb-12">
-      <div class="brand row gap-12">
-	  <img id="avatar" class="avatar" alt="Cabinet avatar" />
-	  <div class="brand-meta">
-		<h1 class="page-title">Gestion des Tables VpinStudio</h1>
-		<div class="sysline">
-		  <span id="sysName">—</span>
-		  <span class="sep">•</span>
-		  <span id="sysVersion">—</span>
-		</div>
-	  </div>
-	</div>
+      <div class="row between">
+		  <div class="brand row gap-12">
+			<img id="avatar" class="avatar" alt="Cabinet avatar" />
+			<div class="brand-meta">
+			  <h1 class="page-title" data-i18n="title">Gestion des Tables VpinStudio</h1>
+			  <div class="sysline">
+				<span id="sysName">—</span>
+				<span class="sep">•</span>
+				<span id="sysVersion">—</span>
+			  </div>
+			</div>
+		  </div>
 
+		  <!-- Sélecteur langue à droite -->
+		  <div class="lang-switch">
+			<label for="lang" class="sr-only">Language</label>
+			<select id="lang" aria-label="Language">
+			  <option value="en">EN</option>
+			  <option value="fr">FR</option>
+			</select>
+		  </div>
+		</div>
 
       <!-- Ligne 1 : Base + Emulateur + Actualiser -->
       <div class="row gap-12">
         <div class="flex-1">
-          <label for="base" class="muted">Base API</label><br />
+          <label for="base" class="muted" data-i18n="baseApi">Base API</label><br />
           <input id="base" type="text" value="http://192.168.0.5:8089/api/v1" />
         </div>
         <div>
-          <label for="emu" class="muted">Émulateur</label><br />
+          <label for="emu" class="muted" data-i18n="emulator">Émulateur</label><br />
           <select id="emu" style="min-width:240px;"></select>
         </div>
         <div class="align-end">
-          <button id="refresh">Actualiser</button>
+          <button id="refresh" data-i18n="refresh">Actualiser</button>
         </div>
       </div>
 
@@ -42,7 +52,7 @@
       <div class="row gap-12 between mt-6">
         <div class="counter" id="counter">0 / 0</div>
         <label class="search">
-          <input id="search" type="search" placeholder="Rechercher une table ou un ID…" />
+          <input id="search" type="search" data-i18n-placeholder="search" placeholder="Rechercher une table ou un ID…">
         </label>
       </div>
     </div>
@@ -50,7 +60,7 @@
 	<!-- Bouton Restart + Hooks -->
 	<div class="card mb-12" id="controls">
 	  <div class="row gap-12">
-		<button id="restart">🔁 Restart PinupPopper</button>
+		<button id="restart">🔁 Restart Pinup Popper</button>
 
 		<!-- Barre de hooks (boutons générés dynamiquement) -->
 		<div id="hooksBar" class="hooks-bar" aria-label="Hooks disponibles"></div>

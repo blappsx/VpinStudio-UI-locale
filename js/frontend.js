@@ -1,21 +1,20 @@
 // js/frontend.js
 import { getFrontendInfo } from './api.js';
+import { t } from './i18n.js';
 
 export async function updateRestartButtonLabel() {
   const btn = document.getElementById('restart');
   if (!btn) return;
 
-  // Valeur par défaut si l’API échoue
-  let label = '🔁 Restart Frontend';
+  let label = t('restartGeneric');
 
   try {
     const info = await getFrontendInfo();
     const name = info?.name || info?.frontendType || 'Frontend';
-    label = `🔁 Restart ${name}`;
+    label = t('restartWithName', { name });
   } catch (_) {
-    // on garde le fallback
+    // fallback
   }
-
   btn.textContent = label;
   btn.setAttribute('aria-label', label);
 }

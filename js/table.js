@@ -2,6 +2,7 @@ import { state } from './state.js';
 import { esc } from './utils.js';
 import { ensureWheelForGame } from './media.js';
 import { openDetails } from './modal.js';
+import { t } from './i18n.js';
 
 export function updateCounter(){
   const { counterEl } = state.dom;
@@ -41,47 +42,47 @@ function setSortIndicator() {
 export function renderTable() {
   const { out } = state.dom;
   if (state.filteredGames.length === 0) {
-    out.innerHTML = `<div class="muted">Aucune table à afficher.</div>`;
+    out.innerHTML = `<div class="muted">${t('noTables')}</div>`;
     updateCounter();
     return;
   }
 
-  const rows = state.filteredGames.map((g,i)=>`
-    <tr data-gameid="${esc(g.id)}" class="row-clickable">
-      <td class="center td-num" data-label="#"><span class="hash">#</span>${i+1}</td>
-      <td data-label="Table">
-        <div class="namecell">
-          <span class="wheel-slot"><span class="placeholder">img</span></span>
-          <div class="gtexts"><span class="gname">${esc(g.gameDisplayName)}</span></div>
-        </div>
-      </td>
-      <td class="mono td-id" data-label="ID"><span class="hash">#</span>${esc(g.id)}</td>
-      <td class="center actions" data-label="Action">
-        <button data-action="play" data-id="${esc(g.id)}">Jouer / Emulateur</button>
-        <button class="btn-secondary" data-action="launch" data-id="${esc(g.id)}">Jouer / Frontend</button>
-      </td>
-    </tr>
-  `).join('');
+	const rows = state.filteredGames.map((g,i)=>`
+		<tr data-gameid="${esc(g.id)}" class="row-clickable">
+		  <td class="center td-num" data-label="#">#${i+1}</td>
+		  <td data-label="${t('thTable')}">
+			<div class="namecell">
+			  <span class="wheel-slot"><span class="placeholder">img</span></span>
+			  <div class="gtexts"><span class="gname">${esc(g.gameDisplayName)}</span></div>
+			</div>
+		  </td>
+		  <td class="mono td-id" data-label="${t('thId')}">#${esc(g.id)}</td>
+		  <td class="center actions" data-label="${t('thAction')}">
+			<button data-action="play" data-id="${esc(g.id)}">${t('playEmu')}</button>
+			<button class="btn-secondary" data-action="launch" data-id="${esc(g.id)}">${t('playFrontend')}</button>
+		  </td>
+		</tr>
+	  `).join('');
 
-  out.innerHTML = `
-    <table class="tbl">
-      <colgroup>
-        <col style="width:70px">
-        <col>
-        <col style="width:80px">
-        <col style="width:180px">
-      </colgroup>
-      <thead>
-        <tr>
-          <th class="center">#</th>
-          <th>Table</th>
-          <th>ID</th>
-          <th class="center">Action</th>
-        </tr>
-      </thead>
-      <tbody>${rows}</tbody>
-    </table>
-  `;
+	  out.innerHTML = `
+		<table class="tbl">
+		  <colgroup>
+			<col style="width:70px">
+			<col>
+			<col style="width:140px">
+			<col style="width:180px">
+		  </colgroup>
+		  <thead>
+			<tr>
+			  <th class="center">${t('thHash')}</th>
+			  <th>${t('thTable')}</th>
+			  <th>${t('thId')}</th>
+			  <th class="center">${t('thAction')}</th>
+			</tr>
+		  </thead>
+		  <tbody>${rows}</tbody>
+		</table>
+	  `;
 
   // tri par clic
   out.querySelectorAll('thead th').forEach((th, idx) => {

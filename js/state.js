@@ -2,12 +2,12 @@ import { DEFAULT_BASE } from './config.js';
 import { loadPrefs } from './utils.js';
 
 export const state = {
-  // prefs persistés
   prefs: loadPrefs({
-    base: DEFAULT_BASE,
+    base: 'http://192.168.0.5:8089/api/v1',
     emuId: null,
     search: '',
-    sort: { key: 'index', dir: 1 }, // 'index' | 'name' | 'id'
+    sort: { key: 'index', dir: 1 },
+    lang: 'fr'               // <-- ajouté
   }),
   // données en mémoire
   wheelCache: new Map(),
@@ -36,5 +36,7 @@ export function initDOM() {
     modalBack  : document.getElementById('modal-backdrop'),
     modalBody  : document.getElementById('modal-body'),
     modalTitle : document.getElementById('modal-title'),
+	//langue
+	langSelect : document.getElementById('lang'),
   };
 }
