@@ -4,7 +4,6 @@ import { getTableDetails } from './api.js';
 import { ensureWheelForGame } from './media.js';
 import { t } from './i18n.js';
 import { getHighscores } from './api.js';
-import { putPlayGame } from './api.js';
 
 
 export function openModal() {
@@ -60,11 +59,6 @@ export async function openDetails(gameId){
     }
 
     const launchers = Array.isArray(d.launcherList) ? d.launcherList : [];
-	const launchersUI = launchers.length
-	  ? `<div class="kchips">${launchers.map(l =>
-		  `<button class="kchip kchip-launcher" data-alt="${esc(l)}" type="button">${esc(l)}</button>`
-		).join('')}</div>`
-	  : '—';
     const themes = splitCSV(d.gameTheme);
     const tags   = splitCSV(d.tags).map(t=>t.replace(/^,+/,''));
     const linkMain = d.url ? `<a href="${esc(d.url)}" target="_blank" rel="noopener">${esc(d.url)}</a>` : '—';
@@ -90,7 +84,7 @@ export async function openDetails(gameId){
 		  <dt>${t('mIPDB')}</dt><dd>${d.ipdbnum ? `<a href="https://www.ipdb.org/machine.cgi?id=${esc(d.ipdbnum)}" target="_blank" rel="noopener">${esc(d.ipdbnum)}</a>` : '—'}</dd>
 		  <dt>${t('mLink')}</dt><dd>${linkMain}</dd>
 		  <dt>${t('mLink2')}</dt><dd>${link2}</dd>
-		  <dt>${t('mLaunchers')}</dt><dd>${launchersUI}</dd>
+		  <dt>${t('mLaunchers')}</dt><dd>${launchers.length ? listChips(launchers) : '—'}</dd>
 		  <dt>${t('mNotes')}</dt><dd class="kblock">${safe(d.gDetails || d.gNotes || d.notes)}</dd>
 		</dl>
     `;
@@ -114,36 +108,6 @@ export async function openDetails(gameId){
 	} catch (err) {
 	  console.warn('No highscores available:', err);
 	}
-	// Clic sur un launcher -> PUT play avec altExe
-	modalBody.onclick = async (e) => {
-	  const btn = e.target.closest('.kchip-launcher');
-	  if (!btn) return;
-
-	  const altExe = btn.dataset.alt;
-	  if (!altExe) return;
-
-	  // UI feedback
-	  const prev = btn.textContent;
-	  btn.disabled = true;
-	  btn.textContent = '⏳';
-
-	  try {
-		await putPlayGame(gameId, { altExe }); // option: ajoute { option: "..." } si besoin
-		// status global en haut de page
-		if (state?.dom?.statusEl) {
-		  state.dom.statusEl.innerHTML = `<span class="ok">✅ La table a été lancée avec <strong>${esc(altExe)}</strong></span> • ${new Date().toLocaleString()}`;
-		}
-		btn.textContent = '✅';
-		setTimeout(() => { btn.textContent = prev; btn.disabled = false; }, 1200);
-	  } catch (err) {
-		if (state?.dom?.statusEl) {
-		  state.dom.statusEl.innerHTML = `<span class="err">Erreur lancement avec ${esc(altExe)} :</span> ${esc(err.message || err)}`;
-		}
-		btn.textContent = '⚠️';
-		setTimeout(() => { btn.textContent = prev; btn.disabled = false; }, 1500);
-	  }
-	};
-
   } catch(err){
     modalBody.innerHTML = `<div class="err">Error: ${esc(err.message||err)}</div>`;
   }
@@ -166,4 +130,3 @@ export function wireModalClose() {
     if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
   });
 }
-

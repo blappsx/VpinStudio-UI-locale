@@ -410,10 +410,3 @@ tr.row-clickable:active { background: rgba(56,189,248,0.18); }
   white-space: pre-wrap;
 }
 
-.kchip.kchip-launcher {
-  cursor: pointer;
-}
-.kchip.kchip-launcher:disabled {
-  opacity: .7;
-  cursor: default;
-}
