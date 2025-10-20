@@ -37,3 +37,7 @@ export const getAvatar = () =>
 // Récupère les infos du frontend (nom, exe, etc.)
 export const getFrontendInfo = () =>
   fetchJSON(api(base(), '/frontend'));
+
+// Récupère les highscores d'une table
+export const getHighscores = (gameId) =>
+  fetchJSON(api(base(), `/games/scores/${gameId}`));

@@ -3,6 +3,8 @@ import { esc } from './utils.js';
 import { getTableDetails } from './api.js';
 import { ensureWheelForGame } from './media.js';
 import { t } from './i18n.js';
+import { getHighscores } from './api.js';
+
 
 export function openModal() {
   const { modal } = state.dom;
@@ -86,6 +88,26 @@ export async function openDetails(gameId){
 		  <dt>${t('mNotes')}</dt><dd class="kblock">${safe(d.gDetails || d.gNotes || d.notes)}</dd>
 		</dl>
     `;
+	// ===== Highscores =====
+	try {
+	  const scores = await getHighscores(gameId);
+	  if (scores?.raw) {
+		const hsSection = document.createElement('div');
+		hsSection.className = 'hs-section';
+		// Remplace le caractère � par une espace insécable
+		const rawClean = scores.raw
+		  .replace(/�/g, '\u00A0')   // caractère insécable à la place du caractère erroné
+		  .replace(/\n/g, '\n');     // pour les retours à la ligne
+
+		hsSection.innerHTML = `
+		  <h3 class="hs-title">Highscores</h3>
+		  <pre class="hs-raw">${esc(rawClean)}</pre>
+		`;
+		modalBody.appendChild(hsSection);
+	  }
+	} catch (err) {
+	  console.warn('No highscores available:', err);
+	}
   } catch(err){
     modalBody.innerHTML = `<div class="err">Error: ${esc(err.message||err)}</div>`;
   }
