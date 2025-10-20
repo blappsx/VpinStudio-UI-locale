@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>VPinStudio Local UI — Standalone</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root { 
+  --bg:#0b1220; --card:#0f172a; --txt:#e5e7eb; --muted:#94a3b8;
+  --pri:#3b82f6; --br:#1f2a44; --accent:#f97316; --chip:#16a34a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial}
+.wrap{max-width:1100px;margin:20px auto 28px;padding:0 16px}
+.card{background:var(--card);border:1px solid var(--br);border-radius:16px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.15)}
+.row{display:flex;flex-wrap:wrap;align-items:center}
+.gap-12{gap:12px}
+.between{justify-content:space-between}
+.page-title{margin:0 0 6px;font-weight:700;font-size:20px}
+.brand{align-items:center;gap:12px}
+.avatar{width:56px;height:56px;aspect-ratio:1;object-fit:cover;border-radius:10px;background:#0b1220;border:1px solid var(--br);box-shadow:0 6px 16px rgba(0,0,0,.25);display:none}
+.brand-meta{display:flex;flex-direction:column;gap:4px}
+.sysline{font-size:12px;color:var(--muted)}
+.sysline .sep{margin:0 6px}
+.lang-switch select{padding:8px 10px;border:1px solid var(--br);border-radius:10px;background:#0c1018;color:var(--txt);font-weight:600;min-width:70px}
+label{font-size:12px;color:var(--muted)}
+input,select{padding:10px 12px;border:1px solid var(--br);border-radius:12px;font-size:14px;background:#0c1018;color:var(--txt)}
+input{min-width:280px}
+button{border:0;background:var(--pri);color:#fff;padding:8px 12px;border-radius:10px;font-weight:600;cursor:pointer;transition:background .2s ease,transform .02s ease}
+button:hover{background:#2563eb}
+button:active{transform:translateY(1px)}
+button:disabled{opacity:.6;cursor:default}
+#restart{background:var(--accent)}
+#restart:hover{background:#ea580c}
+.btn-secondary{background:#334155}
+.btn-secondary:hover{background:#1f2937}
+.counter{font-size:12px;color:#cbd5e1;background:#0c1018;border:1px solid var(--br);padding:4px 8px;border-radius:999px}
+.status{margin:10px 0 0;font-size:12px;color:var(--muted)}
+.ok{color:#22c55e}.err{color:#fca5a5}
+.center{text-align:center}.muted{color:var(--muted)}.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+
+/* hooks bar */
+#hooksBar{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.hook-btn{background:#334155}
+.hook-btn:hover{background:#1f2937}
+
+/* table */
+table.tbl{width:100%;border-collapse:separate;border-spacing:0;margin:10px auto;border-radius:8px;overflow:hidden;table-layout:fixed}
+.tbl thead th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);text-align:left;padding:8px 10px}
+.tbl tbody tr{border-bottom:1px solid var(--br)}
+.tbl tbody tr:last-child{border-bottom:none}
+.tbl tbody td{padding:8px 10px;vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tbl tbody tr:hover{background-color:rgba(59,130,246,.08);transition:background-color .2s ease}
+td.actions{display:flex;flex-direction:column;gap:6px}
+td.actions button{width:100%}
+.wheel{width:80px;height:80px;object-fit:contain;border-radius:8px;border:none;transition:transform .2s ease}
+.wheel:hover{transform:scale(1.12)}
+.namecell{display:flex;align-items:center;gap:10px}
+.placeholder{width:80px;height:80px;border-radius:8px;border:1px dashed var(--br);display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);background:#0c1018}
+
+/* mobile cards */
+@media (max-width:640px){
+  thead{display:none}
+  table,tbody,tr,td{display:block;width:100%}
+  tr{background:var(--card);border:1px solid var(--br);border-radius:12px;margin-bottom:12px;overflow:hidden}
+  td{border:none;border-bottom:1px solid var(--br);padding:10px 12px;white-space:normal}
+  td:last-child{border-bottom:none}
+  .wheel{width:56px;height:56px}
+  .avatar{width:48px;height:48px;border-radius:10px}
+}
+
+/* Modal */
+.modal{position:fixed;inset:0;display:none}
+.modal.open{display:block}
+.modal-backdrop{position:absolute;inset:0;background:rgba(15,23,42,.45);backdrop-filter:blur(6px)}
+.modal-card{position:relative;max-width:760px;margin:6vh auto;background:var(--card);border:1px solid var(--br);border-radius:16px;box-shadow:0 15px 40px rgba(0,0,0,.25);overflow:hidden}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--br)}
+.modal-title{margin:0;font-size:18px}
+.modal-close{background:transparent;color:#e5e7eb;border:none;font-size:18px;padding:6px 10px;cursor:pointer;border-radius:8px}
+.modal-close:hover{background:#0c1018}
+.modal-body{padding:16px;max-height:70vh;overflow:auto}
+.modal-footer{padding:12px 16px;border-top:1px solid var(--br);display:flex;justify-content:flex-end;gap:8px}
+
+/* fiche technique */
+.kv{display:grid;grid-template-columns:180px 1fr;gap:8px 12px}
+.kv dt{font-weight:600;color:#cbd5e1}
+.kv dd{margin:0}
+.kchips{display:flex;flex-wrap:wrap;gap:6px}
+.kchip{background:var(--chip);color:#fff;border:1px solid #0f5132;padding:3px 8px;border-radius:4px;font-size:12px}
+.kmono{font-family:ui-monospace,Menlo,Consolas,monospace}
+.kmuted{color:#94a3b8}
+.kblock{white-space:pre-wrap}
+@media (max-width:640px){.kv{grid-template-columns:1fr}}
+
+.hs-section{margin-top:24px;padding-top:12px;border-top:1px solid var(--br)}
+.hs-title{font-size:14px;font-weight:600;margin-bottom:6px}
+.hs-raw{background:#0c1018;color:#e2e8f0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.5;padding:12px;border-radius:8px;overflow-x:auto;white-space:pre-wrap}
+
+/* small helpers */
+.mt-8{margin-top:8px}
+.mt-12{margin-top:12px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="row between">
+        <div class="brand row gap-12">
+          <img id="avatar" class="avatar" alt="Cabinet avatar">
+          <div class="brand-meta">
+            <h1 class="page-title">Gestion des Tables VpinStudio</h1>
+            <div class="sysline"><span id="sysName">—</span><span class="sep">•</span><span id="sysVersion">—</span></div>
+          </div>
+        </div>
+        <div class="lang-switch">
+          <select id="lang"><option value="fr" selected>FR</option><option value="en">EN</option></select>
+        </div>
+      </div>
+
+      <div class="row gap-12 mt-12">
+        <div>
+          <label for="base">Base API</label><br>
+          <input id="base" value="http://192.168.0.5:8089/api/v1">
+        </div>
+        <div>
+          <label for="emu">Émulateur</label><br>
+          <select id="emu"></select>
+        </div>
+        <div class="align-end">
+          <button id="refresh">Actualiser</button>
+        </div>
+      </div>
+
+      <div class="row gap-12 mt-12">
+        <div class="flex-1">
+          <input id="search" type="search" placeholder="Rechercher une table ou un ID…">
+          <span id="counter" class="counter">0 / 0</span>
+        </div>
+        <div class="align-end">
+          <button id="restart">🔁 Restart Frontend</button>
+        </div>
+      </div>
+
+      <div id="hooksBar" class="mt-8"></div>
+      <div id="status" class="status"></div>
+    </div>
+
+    <div id="out" class="card mt-12"></div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="modal" aria-hidden="true">
+    <div id="modal-backdrop" class="modal-backdrop"></div>
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-title" class="modal-title">Fiche technique</h3>
+        <button id="modal-close" class="modal-close" title="Fermer">✕</button>
+      </div>
+      <div id="modal-body" class="modal-body"></div>
+      <div class="modal-footer">
+        <button id="modal-close-2" class="modal-close">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ========= Helpers ========= */
+const $ = sel => document.querySelector(sel);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const prefsKey = 'vpinstudio.local.standalone';
+const loadPrefs = () => { try{ return JSON.parse(localStorage.getItem(prefsKey))||{} }catch{return{}} };
+const savePrefs = (p) => { try{ localStorage.setItem(prefsKey, JSON.stringify(p)) }catch{} };
+const apiBase = () => $('#base').value.trim().replace(/\/+$/,'');
+const api = (p) => apiBase() + (p.startsWith('/')?p:'/'+p);
+async function jget(url, init){ const r=await fetch(url,init); if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }
+async function tget(url, init){ const r=await fetch(url,init); if(!r.ok) throw new Error('HTTP '+r.status); return (await r.text()).toString(); }
+async function bget(url, init){ const r=await fetch(url,init); if(!r.ok) throw new Error('HTTP '+r.status); return r.blob(); }
+
+/* ========= State ========= */
+const S = {
+  emuId:null,
+  allGames:[],
+  filtered:[],
+  wheels:new Map(),
+  sort:{ key:'index', dir:1 }, // index|name|id
+  lang:'fr'
+};
+
+/* ========= API ========= */
+const API = {
+  emulators: () => jget(api('/emulators')),
+  games: (emuId) => jget(api('/games/knowns/'+encodeURIComponent(emuId))),
+  play: (id, payload={}) => tget(api('/games/play/'+encodeURIComponent(id)), {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)}),
+  launch: (id) => tget(api('/frontend/launch/'+encodeURIComponent(id))),
+  details: (id) => jget(api('/frontend/tabledetails/'+encodeURIComponent(id))),
+  media: (id) => jget(api('/media/'+encodeURIComponent(id))),
+  restart: () => tget(api('/frontend/restart')),
+  hooks: () => jget(api('/hooks')),
+  postHook: (name, gameId=0) => tget(api('/hooks'), {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name,commands:[],gameId})}),
+  mute: (flag) => tget(api('/system/mute/'+(flag?1:0))),
+  system: () => jget(api('/system')),
+  avatar: () => bget(api('/assets/avatar')),
+  frontendInfo: () => jget(api('/frontend')),
+  highscores: (id) => jget(api('/games/scores/'+encodeURIComponent(id))),
+  mediaUrl: (gameId, name) => api('/media/'+encodeURIComponent(gameId)+'/Wheel/'+encodeURIComponent(name))
+};
+
+/* ========= Header (avatar, system, restart label) ========= */
+async function loadHeader(){
+  const img=$('#avatar'), n=$('#sysName'), v=$('#sysVersion');
+  if (img){ img.style.display='none'; img.removeAttribute('src'); }
+  if (n) n.textContent='—'; if (v) v.textContent='—';
+  try { const blob=await API.avatar(); const url=URL.createObjectURL(blob); img.src=url; img.style.display='block'; } catch(e){}
+  try { const sys=await API.system(); n.textContent=sys.systemName||'—'; v.textContent=sys.version?('VPinStudio '+sys.version):'—'; } catch(e){}
+  try { const f=await API.frontendInfo(); const name=f?.name||f?.frontendType||'Frontend'; const label=(S.lang==='fr'?'🔁 Redémarrer ':'🔁 Restart ')+name; $('#restart').textContent=label; } catch(e){}
+}
+
+/* ========= Hooks bar ========= */
+async function loadHooksBar(){
+  const bar=$('#hooksBar'); bar.textContent=''; 
+  try {
+    const data=await API.hooks(); const list=Array.isArray(data?.hooks)?data.hooks:[];
+    list.forEach(h=>{
+      const label=h.endsWith('.bat')?h.slice(0,-4):h;
+      const b=document.createElement('button'); b.className='hook-btn'; b.textContent=label;
+      b.onclick=async()=>{ b.disabled=true; try{ await API.postHook(h,0); ok('Hook exécuté • '+label) }catch(e){ err('Erreur hook: '+e.message) } finally{ b.disabled=false } };
+      bar.appendChild(b);
+    });
+    // Mute / Unmute
+    const m=document.createElement('button'); m.className='hook-btn'; m.textContent=(S.lang==='fr'?'Muet':'Mute');
+    m.onclick=async()=>{ try{ await API.mute(1); ok('Son coupé') }catch(e){ err('Erreur mute') } };
+    const u=document.createElement('button'); u.className='hook-btn'; u.textContent=(S.lang==='fr'?'Son':'Unmute');
+    u.onclick=async()=>{ try{ await API.mute(0); ok('Son activé') }catch(e){ err('Erreur unmute') } };
+    bar.append(m,u);
+  } catch(e) {
+    bar.innerHTML='<span class="err">Erreur chargement hooks</span>';
+  }
+}
+
+/* ========= Toast line ========= */
+function ok(msg){ $('#status').innerHTML = `<span class="ok">✔</span> ${esc(msg)} • ${new Date().toLocaleString()}` }
+function err(msg){ $('#status').innerHTML = `<span class="err">⚠</span> ${esc(msg)} • ${new Date().toLocaleString()}` }
+
+/* ========= Emulators & Games ========= */
+async function loadEmulators(){
+  const sel=$('#emu'); sel.innerHTML='';
+  try{
+    const list=await API.emulators();
+    sel.innerHTML=list.map(e=>`<option value="${e.id}">${esc(e.name||e.safeName||e.type||('ID '+e.id))} (id ${e.id})</option>`).join('');
+    if (S.emuId && [...sel.options].some(o=>String(o.value)===String(S.emuId))) sel.value=String(S.emuId);
+    else if (sel.options.length) S.emuId = sel.value;
+  }catch(e){ err('Erreur émulateurs'); }
+}
+async function loadGames(){
+  const out=$('#out'); out.innerHTML='<div class="muted">Chargement des tables…</div>';
+  try{
+    const list=await API.games(S.emuId);
+    S.allGames=(Array.isArray(list)?list:[]).map(g=>({ id:g.id, name:g.gameDisplayName||g.name||'' }));
+    applyFilterSort(); renderTable(); ok('Tables chargées');
+  }catch(e){ out.innerHTML='<div class="err">Erreur chargement tables</div>'; }
+}
+function applyFilterSort(){
+  const q=$('#search').value.trim().toLowerCase();
+  S.filtered=S.allGames.filter(g => !q || String(g.id).includes(q) || g.name.toLowerCase().includes(q));
+  const {key,dir}=S.sort;
+  S.filtered.sort((a,b)=>{
+    if (key==='id') return (Number(a.id)-Number(b.id))*dir;
+    if (key==='name') return a.name.localeCompare(b.name)*dir;
+    return (S.allGames.indexOf(a)-S.allGames.indexOf(b))*dir;
+  });
+}
+
+/* ========= Wheels ========= */
+async function ensureWheel(gameId){
+  const k=String(gameId);
+  if (S.wheels.has(k)) return S.wheels.get(k);
+  try{
+    const root=await API.media(gameId);
+    const arr=Array.isArray(root?.media?.Wheel)?root.media.Wheel:[];
+    let entry=arr.find(m=>(m.mimeType||'').toLowerCase()==='image/png')||arr[0];
+    if (entry && entry.name) {
+      const url=API.mediaUrl(entry.gameId, entry.name);
+      const info={url,entry,media:root.media};
+      S.wheels.set(k,info); return info;
+    }
+    S.wheels.set(k,null); return null;
+  }catch(e){ S.wheels.set(k,null); return null; }
+}
+
+/* ========= Table render ========= */
+function updateCounter(){ $('#counter').textContent = `${S.filtered.length} / ${S.allGames.length}` }
+
+function renderTable(){
+  const out=$('#out');
+  if (!S.filtered.length){ out.innerHTML='<div class="muted">Aucune table à afficher.</div>'; updateCounter(); return; }
+  const rows=S.filtered.map((g,i)=>`
+    <tr data-id="${esc(g.id)}" class="row-clickable">
+      <td class="center">#${i+1}</td>
+      <td>
+        <div class="namecell">
+          <span class="wheel-slot"><span class="placeholder">img</span></span>
+          <div class="gtexts"><span class="gname">${esc(g.name)}</span></div>
+        </div>
+      </td>
+      <td class="mono">#${esc(g.id)}</td>
+      <td class="center actions">
+        <button class="btn-play" data-id="${esc(g.id)}">Jouer / Emulateur</button>
+        <button class="btn-secondary btn-front" data-id="${esc(g.id)}">Jouer / Frontend</button>
+      </td>
+    </tr>
+  `).join('');
+  out.innerHTML = `
+    <table class="tbl">
+      <colgroup><col style="width:70px"><col><col style="width:140px"><col style="width:190px"></colgroup>
+      <thead><tr><th class="center">#</th><th>Table</th><th>ID</th><th class="center">Action</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+  // line click -> details
+  out.querySelectorAll('tbody tr').forEach(tr=>{
+    tr.addEventListener('click',e=>{
+      if (e.target.closest('button')) return;
+      openDetails(tr.dataset.id);
+    });
+  });
+  // buttons
+  out.querySelectorAll('.btn-play').forEach(b=>{
+    b.onclick=async()=>{
+      b.disabled=true; try{ await API.play(b.dataset.id,{}); ok('Table lancée (PUT)') }catch(e){ err('Erreur lancement') } finally{ b.disabled=false }
+    };
+  });
+  out.querySelectorAll('.btn-front').forEach(b=>{
+    b.onclick=async()=>{
+      b.disabled=true; try{ await API.launch(b.dataset.id); ok('Lancement via Frontend (GET)') }catch(e){ err('Erreur Frontend') } finally{ b.disabled=false }
+    };
+  });
+  // wheels
+  S.filtered.forEach(g=> ensureWheel(g.id).then(info=>{
+    const tr=out.querySelector(`tr[data-id="${CSS.escape(String(g.id))}"]`); if(!tr) return;
+    const slot=tr.querySelector('.wheel-slot');
+    if (info && info.url){ const img=new Image(); img.className='wheel'; img.src=info.url; img.alt='wheel'; img.onload=()=>{}; img.onerror=()=>slot.innerHTML='<span class="placeholder">—</span>'; slot.innerHTML=''; slot.appendChild(img); }
+    else slot.innerHTML='<span class="placeholder">—</span>';
+  }));
+  updateCounter();
+}
+
+/* ========= Modal ========= */
+function openModal(){ const m=$('#modal'); m.classList.add('open'); m.setAttribute('aria-hidden','false'); }
+function closeModal(){ const m=$('#modal'); m.classList.remove('open'); m.setAttribute('aria-hidden','true'); $('#modal-body').innerHTML=''; }
+$('#modal-close').onclick=closeModal; $('#modal-close-2').onclick=closeModal; $('#modal-backdrop').onclick=closeModal;
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && $('#modal').classList.contains('open')) closeModal(); });
+
+async function openDetails(id){
+  const body=$('#modal-body'), title=$('#modal-title'); title.textContent='Fiche technique'; body.innerHTML='<div class="kmuted">Chargement…</div>'; openModal();
+  try{
+    const d=await API.details(id);
+    const fmt = ms=> ms? new Date(ms).toLocaleString() : '—';
+    const split = s => (typeof s==='string' && s.trim()) ? s.split(',').map(x=>x.trim()).filter(Boolean) : [];
+    const chips = arr => arr.length ? `<div class="kchips">${arr.map(x=>`<button class="kchip kchip-launcher" data-alt="${esc(x)}">${esc(x)}</button>`).join('')}</div>` : '—';
+    const titleTxt = d.gameDisplayName || d.gameName || '(no name)';
+
+    // wheel for modal header bg (optional)
+    // (not adding blurred bg here to keep things light)
+
+    body.innerHTML = `
+      <dl class="kv">
+        <dt>Nom</dt><dd>${esc(titleTxt)}</dd>
+        <dt>Fichier</dt><dd class="kmono">${esc(d.gameFileName||'—')}</dd>
+        <dt>Fabricant</dt><dd>${esc(d.manufacturer||'—')}</dd>
+        <dt>Année</dt><dd>${esc(d.gameYear||'—')}</dd>
+        <dt>Version</dt><dd>${esc(d.gameVersion||'—')}</dd>
+        <dt>Concepteur</dt><dd>${esc(d.designedBy||'—')}</dd>
+        <dt>Auteurs</dt><dd>${esc(d.author||'—')}</dd>
+        <dt>Thèmes</dt><dd>${chips(split(d.gameTheme))}</dd>
+        <dt>Tags</dt><dd>${chips(split((d.tags||'').replace(/^,+/,'')))}</dd>
+        <dt>Joueurs</dt><dd>${esc(d.numberOfPlayers||'—')}</dd>
+        <dt>Parties</dt><dd>${esc(d.numberPlays||'—')}</dd>
+        <dt>Dernière partie</dt><dd>${fmt(d.lastPlayed)}</dd>
+        <dt>Ajouté le</dt><dd>${fmt(d.dateAdded)}</dd>
+        <dt>Modifié le</dt><dd>${fmt(d.dateModified)}</dd>
+        <dt>ROM</dt><dd class="kmono">${esc(d.romName||d.romAlt||'—')}</dd>
+        <dt>IPDB</dt><dd>${d.ipdbnum?`<a href="https://www.ipdb.org/machine.cgi?id=${esc(d.ipdbnum)}" target="_blank" rel="noopener">${esc(d.ipdbnum)}</a>`:'—'}</dd>
+        <dt>Lanceurs</dt><dd>${chips(Array.isArray(d.launcherList)?d.launcherList:[])}</dd>
+        <dt>Notes</dt><dd class="kblock">${esc(d.gDetails||d.gNotes||d.notes||'—')}</dd>
+      </dl>
+    `;
+
+    // Highscores section
+    try{
+      const hs = await API.highscores(id);
+      if (hs?.raw){
+        const rawClean = hs.raw.replace(/�/g,'\u00A0'); // remplace � par espace insécable
+        const sec = document.createElement('div');
+        sec.className='hs-section';
+        sec.innerHTML = `<h3 class="hs-title">Highscores</h3><pre class="hs-raw">${esc(rawClean)}</pre>`;
+        body.appendChild(sec);
+      }
+    }catch(e){/* ignore */}
+
+    // Click on launcher chips -> play with altExe
+    body.addEventListener('click', async (e)=>{
+      const btn=e.target.closest('.kchip-launcher'); if(!btn) return;
+      const alt=btn.getAttribute('data-alt'); if(!alt) return;
+      const prev=btn.textContent; btn.disabled=true; btn.textContent='⏳';
+      try{ await API.play(id, { altExe: alt }); ok('Lancement avec '+alt); btn.textContent='✅'; }
+      catch(e){ err('Erreur lancement '+alt); btn.textContent='⚠️'; }
+      finally{ setTimeout(()=>{ btn.textContent=prev; btn.disabled=false; },1200); }
+    }, { once:false });
+
+  }catch(e){
+    body.innerHTML = `<div class="err">Erreur: ${esc(e.message||e)}</div>`;
+  }
+}
+
+/* ========= Header wiring ========= */
+$('#refresh').onclick = async ()=>{
+  const base = $('#base').value.trim(); S.emuId=$('#emu').value||S.emuId;
+  savePrefs({ base, emu:S.emuId, lang:S.lang, sort:S.sort });
+  await loadHeader(); await loadHooksBar(); await loadEmulators(); await loadGames();
+};
+$('#base').addEventListener('change', async ()=>{
+  savePrefs({ base:$('#base').value.trim(), emu:S.emuId, lang:S.lang, sort:S.sort });
+  await loadHeader(); await loadHooksBar();
+});
+$('#emu').addEventListener('change', async ()=>{
+  S.emuId = $('#emu').value; savePrefs({ base:$('#base').value.trim(), emu:S.emuId, lang:S.lang, sort:S.sort });
+  await loadGames();
+});
+$('#search').addEventListener('input', ()=>{ applyFilterSort(); renderTable(); });
+
+$('#restart').onclick = async ()=>{
+  const b=$('#restart'); b.disabled=true;
+  try{ await API.restart(); ok('Frontend redémarré'); }catch(e){ err('Erreur restart') } finally{ b.disabled=false }
+};
+
+/* ========= Boot ========= */
+(async function boot(){
+  // restore prefs
+  const p = loadPrefs(); if(p.base) $('#base').value=p.base; if(p.lang) $('#lang').value=p.lang, S.lang=p.lang;
+  await loadHeader();
+  await loadHooksBar();
+  await loadEmulators();
+  if ($('#emu').options.length) { if (p.emu) $('#emu').value=String(p.emu); S.emuId=$('#emu').value; }
+  await loadGames();
+})();
+
+/* ========= Lang switch (texte statique minime) ========= */
+$('#lang').addEventListener('change', async ()=>{
+  S.lang = $('#lang').value;
+  savePrefs({ base:$('#base').value.trim(), emu:S.emuId, lang:S.lang, sort:S.sort });
+  // refresh labels that depend on language
+  await loadHeader(); // updates restart label + keeps avatar/system
+  // hooks buttons text for mute/unmute are recreated on reload:
+  await loadHooksBar();
+});
+</script>
+</body>
+</html>
