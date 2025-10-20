@@ -6,10 +6,18 @@ const base = () => state.prefs.base;
 
 export const getEmulators = () => fetchJSON(api(base(), '/emulators'));
 export const getGamesKnowns = (emuId) => fetchJSON(api(base(), `/games/knowns/${encodeURIComponent(emuId)}`));
-export const putPlayGame = (gameId) =>
+// PUT /games/play/:id  — lance une table, avec options facultatives
+export const putPlayGame = (gameId, payload = {}) =>
   fetchTEXT(api(base(), `/games/play/${encodeURIComponent(gameId)}`), {
-    method:'PUT', headers:{'Content-Type':'application/json'}, body:'{}'
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload) // ex. { altExe: "VPinballX64.exe", option: "..." }
   });
+
+// (facultatif) petit helper
+export const playWithAltExe = (gameId, altExe, option) =>
+  putPlayGame(gameId, option ? { altExe, option } : { altExe });
+  
 export const getFrontendLaunch = (gameId) =>
   fetchTEXT(api(base(), `/frontend/launch/${encodeURIComponent(gameId)}`));
 export const getTableDetails = (gameId) =>
