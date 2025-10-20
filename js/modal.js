@@ -90,7 +90,7 @@ export async function openDetails(gameId){
 		  <dt>${t('mIPDB')}</dt><dd>${d.ipdbnum ? `<a href="https://www.ipdb.org/machine.cgi?id=${esc(d.ipdbnum)}" target="_blank" rel="noopener">${esc(d.ipdbnum)}</a>` : '—'}</dd>
 		  <dt>${t('mLink')}</dt><dd>${linkMain}</dd>
 		  <dt>${t('mLink2')}</dt><dd>${link2}</dd>
-		  <dt>Lanceurs</dt><dd>${launchersUI}</dd>
+		  <dt>${t('mLaunchers')}</dt><dd>${launchersUI}</dd>
 		  <dt>${t('mNotes')}</dt><dd class="kblock">${safe(d.gDetails || d.gNotes || d.notes)}</dd>
 		</dl>
     `;
@@ -166,3 +166,4 @@ export function wireModalClose() {
     if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
   });
 }
+
