@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Accordeur guitare (mobile)</title>
+  <style>
+    :root { color-scheme: dark; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: #0b0c10; color: #e8e8e8;
+    }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 16px; }
+    h1 { font-size: 18px; margin: 0 0 12px; font-weight: 700; }
+    .card {
+      background: #141620; border: 1px solid #242742; border-radius: 16px;
+      padding: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      margin-bottom: 12px;
+    }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    button {
+      appearance: none; border: 1px solid #2b2f55; background: #1b1f3a; color: #fff;
+      padding: 10px 12px; border-radius: 12px; font-size: 14px; font-weight: 650;
+    }
+    button.primary { background: #2a2f66; border-color: #3b42a6; }
+    button:active { transform: translateY(1px); }
+    select, input[type="range"], input[type="number"]{
+      background: #0f1120; border: 1px solid #2b2f55; color: #fff;
+      border-radius: 12px; padding: 10px 12px; font-size: 14px;
+    }
+    .grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .big {
+      font-size: 44px; font-weight: 800; letter-spacing: .5px;
+      line-height: 1; margin: 8px 0 6px;
+    }
+    .sub { opacity: .85; font-size: 13px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+    .meter {
+      position: relative; height: 18px; border-radius: 999px;
+      background: linear-gradient(90deg, #7a2e2e, #b07b2d, #2f8b55, #b07b2d, #7a2e2e);
+      border: 1px solid #2b2f55; overflow: hidden;
+      margin-top: 10px;
+    }
+    .needle {
+      position: absolute; top: -6px; width: 3px; height: 30px;
+      background: #fff; left: 50%;
+      box-shadow: 0 0 12px rgba(255,255,255,.35);
+    }
+    .centerZone {
+      position: absolute; top: 0; left: 48%; width: 4%;
+      height: 100%; background: rgba(255,255,255,.12);
+    }
+    .status {
+      display: flex; justify-content: space-between; gap: 8px;
+      font-size: 12px; opacity: .8; margin-top: 6px;
+    }
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 10px; border-radius: 999px;
+      border: 1px solid #2b2f55; background: #101226;
+      font-size: 13px;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #666; }
+    .dot.on { background: #3ddc84; }
+    .hint { font-size: 12px; opacity: .75; line-height: 1.4; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Accordeur guitare (micro) — note / Hz / cents</h1>
+
+    <div class="card">
+      <div class="row" style="justify-content: space-between;">
+        <div class="pill"><span id="micDot" class="dot"></span><span id="micLabel">Micro: arrêté</span></div>
+        <div class="row">
+          <button id="btnStart" class="primary">Start</button>
+          <button id="btnStop">Stop</button>
+        </div>
+      </div>
+      <div class="hint" style="margin-top:10px;">
+        Astuce: approche le téléphone de la rosace, et joue une corde à la fois.
+        Sur iPhone, ça marche mieux servi en HTTPS (ou localhost) et après un tap sur “Start”.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="grid">
+        <div>
+          <div class="sub">Note détectée</div>
+          <div id="note" class="big">—</div>
+          <div class="sub mono">octave: <span id="oct">—</span></div>
+        </div>
+        <div>
+          <div class="sub">Fréquence</div>
+          <div class="big"><span id="freq">—</span><span style="font-size:18px; opacity:.8;"> Hz</span></div>
+          <div class="sub mono">cents: <span id="cents">—</span></div>
+        </div>
+      </div>
+
+      <div class="meter" aria-label="jauge cents">
+        <div class="centerZone"></div>
+        <div id="needle" class="needle"></div>
+      </div>
+      <div class="status">
+        <span class="mono">-50</span>
+        <span id="advice" class="mono">—</span>
+        <span class="mono">+50</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <label class="sub">Corde cible</label>
+        <select id="stringSelect" aria-label="corde cible">
+          <option value="E2">E (Mi grave) — E2 82.41 Hz</option>
+          <option value="A2">A (La) — A2 110.00 Hz</option>
+          <option value="D3">D (Ré) — D3 146.83 Hz</option>
+          <option value="G3">G (Sol) — G3 196.00 Hz</option>
+          <option value="B3">B (Si) — B3 246.94 Hz</option>
+          <option value="E4">E (Mi aigu) — E4 329.63 Hz</option>
+          <option value="AUTO" selected>Auto (note la plus proche)</option>
+        </select>
+
+        <label class="sub">A4</label>
+        <input id="a4" type="number" min="430" max="450" step="0.1" value="440" style="width:110px;">
+      </div>
+
+      <div class="hint" style="margin-top:10px;">
+        “Cents” = écart fin : 0 = pile juste, - = trop grave, + = trop aigu.
+        Pour l’accordage, vise ±3 cents.
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // --- Utils musique ---
+  const NOTE_NAMES = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+
+  function freqToMidi(f, a4=440) {
+    return 69 + 12 * Math.log2(f / a4);
+  }
+  function midiToFreq(m, a4=440) {
+    return a4 * Math.pow(2, (m - 69) / 12);
+  }
+  function midiToName(midi) {
+    const n = Math.round(midi);
+    const name = NOTE_NAMES[(n % 12 + 12) % 12];
+    const oct = Math.floor(n / 12) - 1;
+    return { name, oct, midi: n };
+  }
+  function centsOff(f, midi, a4=440) {
+    const target = midiToFreq(midi, a4);
+    return 1200 * Math.log2(f / target);
+  }
+
+  // Accordage standard guitare
+  const STRING_TARGETS = {
+    "E2": 82.4068892282175,
+    "A2": 110.0,
+    "D3": 146.8323839587038,
+    "G3": 196.0,
+    "B3": 246.94165062806206,
+    "E4": 329.6275569128699
+  };
+
+  // --- Pitch detection (auto-corrélation) ---
+  // Retourne fréquence ou null
+  function autoCorrelate(buf, sampleRate) {
+    // Énergie / niveau
+    let rms = 0;
+    for (let i=0; i<buf.length; i++) {
+      const v = buf[i];
+      rms += v*v;
+    }
+    rms = Math.sqrt(rms / buf.length);
+    if (rms < 0.01) return null; // trop faible
+
+    // Centre autour de 0 (déjà le cas) + fenêtrage léger
+    // On cherche un pic d'auto-corrélation
+    const SIZE = buf.length;
+    let bestOffset = -1;
+    let bestCorrelation = 0;
+    let lastCorrelation = 1;
+    let foundGood = false;
+
+    // bornes: 50 Hz à 1000 Hz environ
+    const minFreq = 50;
+    const maxFreq = 1000;
+    const minOffset = Math.floor(sampleRate / maxFreq);
+    const maxOffset = Math.floor(sampleRate / minFreq);
+
+    for (let offset = minOffset; offset <= maxOffset; offset++) {
+      let correlation = 0;
+      for (let i = 0; i < SIZE - offset; i++) {
+        correlation += buf[i] * buf[i + offset];
+      }
+      correlation = correlation / (SIZE - offset);
+
+      if (correlation > 0.9 && correlation > lastCorrelation) {
+        foundGood = true;
+      }
+      if (foundGood && correlation > bestCorrelation) {
+        bestCorrelation = correlation;
+        bestOffset = offset;
+      }
+      // quand ça redescend bien après un bon pic, on peut arrêter tôt
+      if (foundGood && correlation < lastCorrelation && bestOffset !== -1) {
+        break;
+      }
+      lastCorrelation = correlation;
+    }
+
+    if (bestOffset === -1 || bestCorrelation < 0.2) return null;
+
+    // Raffinement par interpolation parabolique autour du pic
+    // (améliore la précision)
+    const offset = bestOffset;
+    const x0 = offset - 1, x1 = offset, x2 = offset + 1;
+    if (x0 < minOffset || x2 > maxOffset) {
+      return sampleRate / offset;
+    }
+
+    function corrAt(off) {
+      let c = 0;
+      for (let i=0; i<SIZE-off; i++) c += buf[i] * buf[i+off];
+      return c / (SIZE - off);
+    }
+    const c0 = corrAt(x0), c1 = corrAt(x1), c2 = corrAt(x2);
+    const denom = (2*c1 - c0 - c2);
+    let shift = 0;
+    if (Math.abs(denom) > 1e-12) shift = (c2 - c0) / (2 * denom);
+    const refined = x1 + shift;
+
+    return sampleRate / refined;
+  }
+
+  // --- UI ---
+  const el = (id) => document.getElementById(id);
+  const btnStart = el("btnStart");
+  const btnStop = el("btnStop");
+  const micDot = el("micDot");
+  const micLabel = el("micLabel");
+  const noteEl = el("note");
+  const octEl = el("oct");
+  const freqEl = el("freq");
+  const centsEl = el("cents");
+  const needle = el("needle");
+  const advice = el("advice");
+  const stringSelect = el("stringSelect");
+  const a4Input = el("a4");
+
+  let audioCtx = null;
+  let analyser = null;
+  let source = null;
+  let stream = null;
+  let raf = null;
+
+  const data = new Float32Array(2048);
+
+  function setMicState(on) {
+    micDot.classList.toggle("on", on);
+    micLabel.textContent = on ? "Micro: actif" : "Micro: arrêté";
+  }
+
+  function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
+
+  function setNeedleFromCents(c) {
+    // map -50..+50 cents -> 0..100%
+    const pct = (clamp(c, -50, 50) + 50) / 100;
+    needle.style.left = (pct * 100) + "%";
+  }
+
+  function setAdvice(c) {
+    const abs = Math.abs(c);
+    if (!isFinite(c)) { advice.textContent = "—"; return; }
+    if (abs <= 3) advice.textContent = "OK (pile)";
+    else if (c < 0) advice.textContent = "Trop grave → tends";
+    else advice.textContent = "Trop aigu → détends";
+  }
+
+  function closestStringTarget(freq) {
+    let best = null;
+    let bestDiff = Infinity;
+    for (const [k, f] of Object.entries(STRING_TARGETS)) {
+      const diff = Math.abs(1200 * Math.log2(freq / f)); // en cents
+      if (diff < bestDiff) { bestDiff = diff; best = { key: k, freq: f, diffCents: diff }; }
+    }
+    return best;
+  }
+
+  function update() {
+    if (!analyser || !audioCtx) return;
+
+    analyser.getFloatTimeDomainData(data);
+    const f = autoCorrelate(data, audioCtx.sampleRate);
+
+    const a4 = parseFloat(a4Input.value) || 440;
+
+    if (!f) {
+      noteEl.textContent = "—";
+      octEl.textContent = "—";
+      freqEl.textContent = "—";
+      centsEl.textContent = "—";
+      setNeedleFromCents(0);
+      advice.textContent = "Silence / trop faible";
+      raf = requestAnimationFrame(update);
+      return;
+    }
+
+    // freq affichée
+    freqEl.textContent = f.toFixed(2);
+
+    // cible
+    const mode = stringSelect.value;
+    let targetMidi;
+    let shownName, shownOct;
+
+    if (mode === "AUTO") {
+      const midi = freqToMidi(f, a4);
+      const info = midiToName(midi);
+      targetMidi = info.midi;
+      shownName = info.name;
+      shownOct = info.oct;
+    } else {
+      const tf = STRING_TARGETS[mode];
+      targetMidi = Math.round(freqToMidi(tf, a4));
+      const info = midiToName(targetMidi);
+      shownName = info.name;
+      shownOct = info.oct;
+    }
+
+    noteEl.textContent = shownName;
+    octEl.textContent = String(shownOct);
+
+    const c = centsOff(f, targetMidi, a4);
+    centsEl.textContent = (c >= 0 ? "+" : "") + c.toFixed(1);
+
+    setNeedleFromCents(c);
+    setAdvice(c);
+
+    raf = requestAnimationFrame(update);
+  }
+
+  async function start() {
+    if (audioCtx) return;
+
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false
+        }
+      });
+
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 2048;
+      analyser.smoothingTimeConstant = 0.2;
+
+      source = audioCtx.createMediaStreamSource(stream);
+      source.connect(analyser);
+
+      setMicState(true);
+      update();
+    } catch (e) {
+      console.error(e);
+      alert("Impossible d'accéder au micro. Vérifie les permissions et que la page est en HTTPS.");
+      stop();
+    }
+  }
+
+  function stop() {
+    if (raf) cancelAnimationFrame(raf);
+    raf = null;
+
+    if (source) { try { source.disconnect(); } catch {} }
+    source = null;
+
+    if (analyser) { try { analyser.disconnect?.(); } catch {} }
+    analyser = null;
+
+    if (audioCtx) { audioCtx.close(); }
+    audioCtx = null;
+
+    if (stream) {
+      for (const t of stream.getTracks()) t.stop();
+    }
+    stream = null;
+
+    setMicState(false);
+  }
+
+  btnStart.addEventListener("click", start);
+  btnStop.addEventListener("click", stop);
+
+  // Bonus: quand on change la corde, recentre l’aiguille
+  stringSelect.addEventListener("change", () => setNeedleFromCents(0));
+
+  // Valeur A4 safe
+  a4Input.addEventListener("change", () => {
+    const v = parseFloat(a4Input.value);
+    if (!isFinite(v) || v < 430 || v > 450) a4Input.value = "440";
+  });
+
+  // Init
+  setMicState(false);
+  setNeedleFromCents(0);
+})();
+</script>
+</body>
+</html>
