@@ -1,7 +1,3 @@
-Voici la traduction complète en anglais du fichier :
-
----
-
 # 📘 Tutorial — Display Table Image, Number of Plays, Total Time and Scores in Home Assistant
 
 ## 🎯 Objective
@@ -287,19 +283,153 @@ Displays:
 * table name
 * active/inactive status
 
-*(YAML unchanged)*
+```yaml
+type: custom:button-card
+entity: sensor.vpin_gamestatus
+show_icon: false
+show_entity_picture: true
+show_name: true
+show_state: true
+entity_picture: |
+  [[[
+    return states['sensor.vpin_active_wheel_url']?.state || '';
+  ]]]
+name: |
+  [[[
+    const d = states['sensor.vpin_active_table_details'];
+    return d?.state && d.state !== 'unknown' ? d.state : 'Aucune table';
+  ]]]
+state_display: |
+  [[[
+    return entity?.state === 'active' ? 'En cours de jeu' : 'Inactive';
+  ]]]
+tap_action:
+  action: none
+hold_action:
+  action: none
+custom_fields:
+  badge: |
+    [[[
+      return entity?.state === 'active' ? '🟢 Active' : '⚪ Inactive';
+    ]]]
+styles:
+  card:
+    - padding: 18px
+    - border-radius: 20px
+    - overflow: hidden
+    - background: |
+        [[[
+          return entity?.state === 'active'
+            ? 'linear-gradient(180deg, rgba(34,197,94,0.18), rgba(21,25,34,1))'
+            : 'linear-gradient(180deg, rgba(120,120,120,0.10), rgba(21,25,34,1))';
+        ]]]
+  grid:
+    - grid-template-areas: '"i" "n" "s"'
+    - grid-template-columns: 1fr
+    - grid-template-rows: auto min-content min-content
+  img_cell:
+    - justify-self: center
+    - align-self: center
+    - padding-bottom: 12px
+  entity_picture:
+    - width: 260px
+    - height: 260px
+    - object-fit: contain
+    - border-radius: 16px
+    - filter: |
+        [[[
+          return entity?.state === 'active'
+            ? 'grayscale(0%) drop-shadow(0 10px 30px rgba(0,0,0,0.45))'
+            : 'grayscale(100%) opacity(0.55)';
+        ]]]
+  name:
+    - justify-self: center
+    - text-align: center
+    - font-size: 20px
+    - font-weight: 700
+    - color: |
+        [[[
+          return entity?.state === 'active' ? '#ffffff' : '#cbd5e1';
+        ]]]
+  state:
+    - justify-self: center
+    - text-align: center
+    - font-size: 13px
+    - color: |
+        [[[
+          return entity?.state === 'active' ? '#22c55e' : '#94a3b8';
+        ]]]
+  custom_fields:
+    badge:
+      - position: absolute
+      - top: 12px
+      - right: 12px
+      - background: rgba(0,0,0,0.35)
+      - padding: 6px 10px
+      - border-radius: 999px
+      - font-size: 12px
+      - font-weight: 600
+```
 
 ---
 
 ## Block 2 — Total time + number of plays
 
-*(YAML unchanged)*
+```yaml
+type: grid
+columns: 2
+square: false
+cards:
+  - type: custom:button-card
+    entity: sensor.vpin_alx_total_time
+    name: Temps total
+    show_state: true
+    show_icon: true
+    icon: mdi:timer-outline
+    styles:
+      card:
+        - padding: 16px
+        - border-radius: 18px
+      icon:
+        - color: '#60a5fa'
+      name:
+        - font-size: 14px
+        - font-weight: 600
+      state:
+        - font-size: 22px
+        - font-weight: 700
+
+  - type: custom:button-card
+    entity: sensor.vpin_alx_number_of_plays
+    name: Nombre de parties
+    show_state: true
+    show_icon: true
+    icon: mdi:play-circle-outline
+    styles:
+      card:
+        - padding: 16px
+        - border-radius: 18px
+      icon:
+        - color: '#22c55e'
+      name:
+        - font-size: 14px
+        - font-weight: 600
+      state:
+        - font-size: 22px
+        - font-weight: 700
+```
 
 ---
 
 ## Block 3 — Raw scores
 
-*(YAML unchanged)*
+````yaml
+type: markdown
+title: Scores
+content: |
+  ```text
+  {{ state_attr('sensor.vpin_scores_raw_text', 'raw_text') or 'Aucun score' }}
+````
 
 ---
 
@@ -313,6 +443,10 @@ Once configured, the Home Assistant view displays:
 * number of plays
 * raw scores
 
+<img width="829" height="449" alt="image" src="https://github.com/user-attachments/assets/6ff44891-240d-4221-9ce3-c436edda08ed" />
+
+<img width="830" height="692" alt="image" src="https://github.com/user-attachments/assets/60b90548-a797-4197-891a-b3a1ff4b2fff" />
+
 ---
 
 ## ⚠️ Important notes
@@ -321,7 +455,3 @@ Once configured, the Home Assistant view displays:
 * Block 1 requires `custom:button-card`
 * If no table is active, the last played one is shown
 * Scores are displayed as raw text cleaned from `�`
-
----
-
-Si tu veux, je peux maintenant te générer directement le fichier `.md` anglais prêt à télécharger 👍
