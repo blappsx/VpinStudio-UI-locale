@@ -443,6 +443,9 @@ content: |
 
 ---
 
+
+---
+
 ## 🔟 Résultat
 
 Une fois la configuration en place, la vue Home Assistant affiche :
@@ -478,4 +481,3 @@ Cette base peut être enrichie avec :
 ---
 
 Si cette version convient, je pourrai faire la **génération propre du fichier Markdown GitHub** au message suivant.
-```
