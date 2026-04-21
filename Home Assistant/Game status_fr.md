@@ -1,7 +1,3 @@
-Voici une **version française** du tutoriel, rédigée pour relecture rapide.
-
----
-
 # 📘 Tutoriel — Afficher l’image de la table, le nombre de parties, le temps total et les scores dans Home Assistant
 
 ## 🎯 Objectif
