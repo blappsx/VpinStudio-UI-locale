@@ -438,12 +438,6 @@ content: |
   ```text
   {{ state_attr('sensor.vpin_scores_raw_text', 'raw_text') or 'Aucun score' }}
 ````
-
-```
-
----
-
-
 ---
 
 ## 🔟 Résultat
@@ -467,17 +461,5 @@ L’ensemble peut ensuite être intégré dans une vue plus large dédiée au pi
 - Si aucune table n’est active, la dernière table jouée est affichée  
 - Le bloc scores affiche le texte brut tel que fourni par l’API, avec nettoyage du caractère `�`  
 
----
-
-## 🔁 Extension
-
-Cette base peut être enrichie avec :
-
-- un bouton de lancement direct de la table affichée
-- une navigation vers la fiche complète de la table
-- une carte de sélection rapide des tables favorites
-- un affichage plus avancé des scores formatés
-
----
 
 Si cette version convient, je pourrai faire la **génération propre du fichier Markdown GitHub** au message suivant.
