@@ -20,6 +20,9 @@ Le résultat final repose sur **3 blocs distincts** à placer dans une vue Home 
 2. un bloc avec le temps total et le nombre de parties
 3. un bloc avec les scores
 
+<img width="400" height="338" alt="image" src="https://github.com/user-attachments/assets/c42c577b-3bfd-4819-953d-1490ade99c92" />
+
+
 ---
 
 ## 1️⃣ Principe général
