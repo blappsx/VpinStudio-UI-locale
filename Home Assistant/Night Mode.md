@@ -8,6 +8,7 @@ Mettre en place dans Home Assistant :
 - un **interrupteur ON/OFF** permettant de piloter le Night Mode :
   - ON → `5-NightModeOn.bat`
   - OFF → `4-NightModeOff.bat`
+- Les fichiers `5-NightModeOn.bat` et `4-NightModeOff.bat` sont à mettre sur le serveur dans le dossier hooks de VPinStudio
 
 ---
 
