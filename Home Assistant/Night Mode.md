@@ -11,6 +11,8 @@ Mettre en place dans Home Assistant :
 - Les fichiers `5-NightModeOn.bat` et `4-NightModeOff.bat` sont à mettre sur le serveur dans le dossier hooks de VPinStudio
 - Les exemples de fichiers sont ici <https://github.com/blappsx/VpinStudio-UI-locale/tree/main/hooks>
 
+<img width="580" height="538" alt="image" src="https://github.com/user-attachments/assets/fe79aacf-1c5d-4e32-a553-6ae840f87699" />
+
 ---
 
 ## 1️⃣ Création de la commande REST
