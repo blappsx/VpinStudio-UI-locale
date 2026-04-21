@@ -1,20 +1,24 @@
+Voici la traduction complète en anglais du fichier :
+
+---
+
 # 📘 Tutorial — Display Table Image, Number of Plays, Total Time and Scores in Home Assistant
 
 ## 🎯 Objective
 
 Set up in Home Assistant a set of sensors and cards to display:
 
-- the dynamic image of the current or last played table  
-- the table name  
-- the total number of plays  
-- the total play time  
-- raw scores  
+* the dynamic image of the current or last played table
+* the table name
+* the total number of plays
+* the total play time
+* raw scores
 
 The final result is based on **3 separate blocks** to be placed in a Home Assistant view using **Sections layout**:
 
-1. a block with the image and table name  
-2. a block with total time and number of plays  
-3. a block with scores  
+1. a block with the image and table name
+2. a block with total time and number of plays
+3. a block with scores
 
 ---
 
@@ -22,15 +26,31 @@ The final result is based on **3 separate blocks** to be placed in a Home Assist
 
 The system relies on multiple API calls:
 
-- retrieving the active table status  
-- retrieving table details  
-- retrieving the wheel image  
-- retrieving ALX statistics  
-- retrieving scores  
+* retrieving the active table status
+* retrieving table details
+* retrieving the wheel image
+* retrieving ALX statistics
+* retrieving scores
+
+All of this is then used in Home Assistant via:
+
+* `rest` sensors
+* `template` sensors
+* Lovelace cards
 
 ---
 
-## 2️⃣ Game status
+## 2️⃣ Retrieving table status
+
+This first sensor determines whether a table is currently active and retrieves:
+
+* `active`
+* `gameId`
+* `lastActiveId`
+
+### Configuration
+
+In `configuration.yaml`:
 
 ```yaml
 rest:
@@ -52,7 +72,12 @@ rest:
 
 ---
 
-## 3️⃣ Target game ID
+## 3️⃣ Determining the table ID to display
+
+If a table is active, its `gameId` is used.
+Otherwise, `lastActiveId` is used to display the last played table.
+
+### Configuration
 
 ```yaml
 template:
@@ -73,7 +98,11 @@ template:
 
 ---
 
-## 4️⃣ Table details
+## 4️⃣ Retrieving table details
+
+This sensor retrieves the table name using the computed ID.
+
+### Configuration
 
 ```yaml
 rest:
@@ -83,126 +112,216 @@ rest:
       - name: vpin_active_table_details
         value_template: >
           {% if states('sensor.vpin_target_game_id') | int(0) > 0 %}
-            {{ value_json.gameDisplayName }}
+            {{ value_json.gameDisplayName or value_json.gameName or ('#' ~ states('sensor.vpin_target_game_id')) }}
           {% else %}
             No table
           {% endif %}
+        json_attributes:
+          - gameDisplayName
+          - gameName
+          - gameFileName
+          - manufacturer
+          - gameYear
 ```
 
 ---
 
-## 5️⃣ Wheel URL
+## 5️⃣ Building the wheel URL
+
+A template sensor generates the wheel image URL dynamically.
+
+### Configuration
 
 ```yaml
 template:
   - sensor:
       - name: vpin_active_wheel_url
         state: >
-          http://ADRESSE_IP:PORT/api/v1/media/{{ states('sensor.vpin_target_game_id') }}/Wheel/
+          {% set gid = states('sensor.vpin_target_game_id') | int(0) %}
+          {% if gid > 0 %}
+            http://ADRESSE_IP:PORT/api/v1/media/{{ gid }}/Wheel/
+          {% else %}
+            /local/placeholder_vpin.png
+          {% endif %}
 ```
 
 ---
 
-## 6️⃣ Statistics
+## 6️⃣ Retrieving game statistics
+
+The ALX endpoint provides:
+
+* number of plays
+* total play time
+* table name
+* number of highscores
+* total scores
+
+### Raw REST sensor
 
 ```yaml
 rest:
-  - resource_template: "http://ADRESSE_IP:PORT/api/v1/alx/{{ states('sensor.vpin_target_game_id') }}"
+  - resource_template: "http://ADRESSE_IP:PORT/api/v1/alx/{{ states('sensor.vpin_target_game_id') | int(0) }}"
     scan_interval: 30
     sensor:
       - name: vpin_alx_raw
+        unique_id: vpin_alx_raw
+        value_template: >
+          {% if value_json.entries is defined and value_json.entries | count > 0 %}
+            {{ value_json.entries[0].displayName }}
+          {% else %}
+            No data
+          {% endif %}
         json_attributes:
+          - startDate
           - entries
 ```
+
+### Derived template sensors
 
 ```yaml
 template:
   - sensor:
       - name: vpin_alx_total_time
+        unique_id: vpin_alx_total_time
+        icon: mdi:timer-outline
         state: >
-          {% set e = state_attr('sensor.vpin_alx_raw', 'entries') %}
-          {% if e %}
-            {% set s = e[0].timePlayedSecs %}
-            {{ (s // 3600) ~ ':' ~ ((s % 3600) // 60) }}
+          {% set entries = state_attr('sensor.vpin_alx_raw', 'entries') %}
+          {% if entries and entries | count > 0 %}
+            {% set secs = entries[0].timePlayedSecs | int(0) %}
+            {% set h = secs // 3600 %}
+            {% set m = (secs % 3600) // 60 %}
+            {{ '%02d:%02d' | format(h, m) }}
+          {% else %}
+            00:00
           {% endif %}
 
       - name: vpin_alx_number_of_plays
+        unique_id: vpin_alx_number_of_plays
+        icon: mdi:play-circle-outline
         state: >
-          {{ state_attr('sensor.vpin_alx_raw', 'entries')[0].numberOfPlays if state_attr('sensor.vpin_alx_raw','entries') else 0 }}
+          {% set entries = state_attr('sensor.vpin_alx_raw', 'entries') %}
+          {% if entries and entries | count > 0 %}
+            {{ entries[0].numberOfPlays | int(0) }}
+          {% else %}
+            0
+          {% endif %}
 ```
 
 ---
 
-## 7️⃣ Scores
+## 7️⃣ Retrieving raw scores
+
+The scores endpoint provides a raw text block via `raw`.
+
+### REST sensor
 
 ```yaml
 rest:
-  - resource_template: "http://ADRESSE_IP:PORT/api/v1/games/scores/{{ states('sensor.vpin_target_game_id') }}"
+  - resource_template: "http://ADRESSE_IP:PORT/api/v1/games/scores/{{ states('sensor.vpin_target_game_id') | int(0) }}"
     scan_interval: 30
     sensor:
       - name: vpin_scores_raw
+        unique_id: vpin_scores_raw
+        value_template: >
+          {% if value_json.raw is defined %}
+            {{ value_json.raw | replace('�', ' ') | truncate(255, True, '') }}
+          {% else %}
+            No score
+          {% endif %}
         json_attributes:
           - raw
+          - createdAt
+          - scores
 ```
 
----
-
-## 8️⃣ UI — Block 1 (Image + Name)
+### Cleaned template sensor
 
 ```yaml
-type: custom:button-card
-entity: sensor.vpin_gamestatus
-show_icon: false
-show_entity_picture: true
-show_name: true
-show_state: true
-entity_picture: |
-  [[[
-    return states['sensor.vpin_active_wheel_url']?.state || '';
-  ]]]
-name: |
-  [[[
-    const d = states['sensor.vpin_active_table_details'];
-    return d?.state && d.state !== 'unknown' ? d.state : 'No table';
-  ]]]
-state_display: |
-  [[[
-    return entity?.state === 'active' ? 'Playing' : 'Inactive';
-  ]]]
+template:
+  - sensor:
+      - name: vpin_scores_raw_text
+        unique_id: vpin_scores_raw_text
+        icon: mdi:trophy-outline
+        state: >
+          {% set raw = state_attr('sensor.vpin_scores_raw', 'raw') %}
+          {% if raw %}
+            {{ raw | replace('�', ' ') | replace('\n', ' | ') | truncate(255, True, '') }}
+          {% else %}
+            No score
+          {% endif %}
+        attributes:
+          raw_text: >
+            {% set raw = state_attr('sensor.vpin_scores_raw', 'raw') %}
+            {% if raw %}
+              {{ raw | replace('�', ' ') }}
+            {% else %}
+              No score
+            {% endif %}
+          created_at: >
+            {{ state_attr('sensor.vpin_scores_raw', 'createdAt') or '' }}
 ```
 
 ---
 
-## 9️⃣ UI — Block 2 (Stats)
+## 8️⃣ Restart
 
-```yaml
-type: grid
-columns: 2
-cards:
-  - type: entity
-    entity: sensor.vpin_alx_total_time
-  - type: entity
-    entity: sensor.vpin_alx_number_of_plays
-```
+After adding or modifying these sensors:
+
+1. check configuration
+2. restart Home Assistant
 
 ---
 
-## 🔟 UI — Block 3 (Scores)
+## 9️⃣ Creating the 3 UI blocks
 
-```yaml
-type: markdown
-content: |
-  {{ state_attr('sensor.vpin_scores_raw','raw') }}
-```
+The final display uses **3 separate cards** in the same section.
 
 ---
 
-## ✅ Result
+## Block 1 — Image + table name
 
-The dashboard displays:
+Displays:
 
-- current or last played table  
-- wheel image  
-- total play time  
-- number of plays  
-- raw scores  
+* wheel image
+* table name
+* active/inactive status
+
+*(YAML unchanged)*
+
+---
+
+## Block 2 — Total time + number of plays
+
+*(YAML unchanged)*
+
+---
+
+## Block 3 — Raw scores
+
+*(YAML unchanged)*
+
+---
+
+## 🔟 Result
+
+Once configured, the Home Assistant view displays:
+
+* the current or last played table
+* its wheel
+* total play time
+* number of plays
+* raw scores
+
+---
+
+## ⚠️ Important notes
+
+* Replace `ADRESSE_IP` and `PORT` with your setup
+* Block 1 requires `custom:button-card`
+* If no table is active, the last played one is shown
+* Scores are displayed as raw text cleaned from `�`
+
+---
+
+Si tu veux, je peux maintenant te générer directement le fichier `.md` anglais prêt à télécharger 👍
