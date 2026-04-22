@@ -451,6 +451,7 @@ Une fois la configuration en place, la vue Home Assistant affiche :
 
 <img width="829" height="449" alt="image" src="https://github.com/user-attachments/assets/6ff44891-240d-4221-9ce3-c436edda08ed" />
 
+
 <img width="830" height="692" alt="image" src="https://github.com/user-attachments/assets/60b90548-a797-4197-891a-b3a1ff4b2fff" />
 
 
