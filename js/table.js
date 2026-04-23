@@ -119,7 +119,16 @@ export function renderTable() {
       const img = new Image();
       img.className='wheel'; img.alt='wheel'; img.decoding='async'; img.loading='lazy';
       img.src = info.url; img.title = info.url; img.draggable=false;
-      img.onerror = () => { slot.innerHTML = `<span class="placeholder">—</span>`; };
+      img.onerror = () => {
+		  // 1) fallback vers URL avec nom si dispo
+		  if (info?.namedUrl && img.src !== info.namedUrl) {
+			img.src = info.namedUrl;
+			return;
+		  }
+
+		  // 2) sinon placeholder
+		  slot.innerHTML = `<span class="placeholder">—</span>`;
+		};
       slot.innerHTML=''; slot.appendChild(img);
     } else {
       slot.innerHTML = `<span class="placeholder">—</span>`;
