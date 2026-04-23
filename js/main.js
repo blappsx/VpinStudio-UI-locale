@@ -4,9 +4,10 @@
  *  Fichier : js/main.js (point d’entrée ES modules)
  * ----------------------------------------------------------------------------
  *  Rôle de main.js :
- *    - Initialisation de l’interface, wiring des events globaux
- *    - Chargement des émulateurs, jeux, hooks, avatar & infos système
- *    - Coordination entre modules (api, table, modal, hooks, header, media)
+ *    - Initialiser l’application et appliquer les préférences persistées
+ *    - Brancher les événements globaux (header, table, langue, contrôles)
+ *    - Coordonner les chargements asynchrones (system, hooks, émulateurs, tables)
+ *    - Orchestrer le rendu principal (tri/filtre, table, compteur, statut)
  *
  *  Auteur(s) / crédits :
  *    - Développement & intégration UI : Cédric Blap / ChatGPT
@@ -14,11 +15,8 @@
  *      https://github.com/syd711/vpin-studio
  *    - Thanks to Syd711 and leprinco
  *
- *  Versions :
- *    - v1.0.0 – 2025-10-14 – Première version stable
- *    - v1.1.0 – 2025-10-16 – Hooks en boutons + Mute/Unmute + améliorations UI
- *    - v1.2.0 – 2025-10-17 – Avatar + System header + libellé Restart dynamique - leprinco
- *    - v1.3.0 – 2025-10-18 – Traduction du projet - leprinco
+ *  Version UI courante :
+ *    - v2.0.0-beta.2 – 2026-04-23 – Branche beta 2.0 (documentation + runtime version)
  *
  *  Configuration par défaut :
  *    - Base API : http://192.168.0.5:8089/api/v1 (modifiable dans l’interface)
@@ -40,33 +38,34 @@
  *    - GET    /assets/avatar                     (PNG avatar du cab)
  *    - GET    /frontend                          (infos frontend, ex. name)
  *
- *  Caractéristiques UI :
+ *  Fonctionnalités UI couvertes :
  *    - Thème sombre (Inter), responsive desktop/mobile
- *    - Tableau triable, filtre en direct, compteur dynamique
+ *    - Tableau triable, recherche en direct, compteur dynamique
  *    - Lignes cliquables → modal fiche technique (fond flou depuis la Wheel)
  *    - Barre de hooks (boutons dynamiques) + Mute/Unmute
  *    - Avatar + nom système + version VPinStudio dans l’en-tête
  *    - Libellé du bouton Restart basé sur le nom du frontend
- *    - Préférences persistées (localStorage) : base, émulateur, tri, filtre
+ *    - Infos de partie active (inline) mises à jour périodiquement
+ *    - Bascule de vue (liste/grille) + panneau contrôles repliable
+ *    - Modale de composants/mises à jour
+ *    - Préférences persistées (localStorage) : base, émulateur, tri, filtre, langue, vue
  *
  *  Modules :
- *    - config.js  : constantes par défaut
- *    - utils.js   : helpers (esc, fetchJSON/TEXT/BLOB, storage)
- *    - state.js   : état global + refs DOM
- *    - api.js     : appels REST vers l’API VPin Studio
- *    - media.js   : résolution & cache des médias (Wheel)
- *    - modal.js   : fiche technique (ouverture/fermeture/rendu)
- *    - table.js   : tri/filtre/rendu de la liste des tables
- *    - hooks.js   : barre de hooks, mute/unmute
- *    - header.js  : avatar + systemName + version
- *    - frontend.js: libellé dynamique du bouton Restart
- *    - i18n.js    : gestion de la traduction
+ *    - config.js   : constantes par défaut
+ *    - utils.js    : helpers (esc, fetchJSON/TEXT/BLOB, storage)
+ *    - state.js    : état global + refs DOM
+ *    - api.js      : appels REST vers l’API VPin Studio
+ *    - media.js    : résolution & cache des médias (Wheel)
+ *    - modal.js    : fiche technique (ouverture/fermeture/rendu)
+ *    - table.js    : tri/filtre/rendu de la liste des tables
+ *    - hooks.js    : barre de hooks, mute/unmute
+ *    - header.js   : avatar + systemName + version
+ *    - frontend.js : libellés frontend + partie active
+ *    - components.js: modale des composants (versions/installés/updates)
+ *    - i18n.js     : gestion de la traduction
  *
  *  Licence :
  *    - MIT License
- *
- *  Dernière modification :
- *    - 2025-10-18 – Cédric Blap / ChatGPT
  * ============================================================================
  */
 import { state, initDOM } from './state.js';
@@ -80,6 +79,9 @@ import { updateRestartButtonLabel, updateActiveGameButtonLabel, updateActiveGame
 import { setLang, applyI18nToDOM } from './i18n.js';
 import { openComponentsModal } from './components.js';
 
+
+const UI_VERSION = '2.0.0-beta.2';
+const UI_VERSION_DATE = '2026-04-23';
 
 function applyPrefsToUI() {
 	const { baseInput, searchInput, controlsToggle, controlsBody } = state.dom;
@@ -302,6 +304,8 @@ function wireHeader() {
 // ---------- BOOT ----------
 (async function boot() {
   initDOM();
+  document.body?.setAttribute('data-ui-version', UI_VERSION);
+  console.info(`[VpinStudio UI] version ${UI_VERSION} (${UI_VERSION_DATE})`);
 
   setLang(state.prefs.lang || 'fr');
   applyI18nToDOM();
