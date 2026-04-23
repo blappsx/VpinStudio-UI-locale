@@ -26,9 +26,12 @@ export function initDOM() {
     out        : document.getElementById('out'),
     statusEl   : document.getElementById('status'),
     restartBtn : document.getElementById('restart'),
+    updatesBtn : document.getElementById('updatesBtn'),
     searchInput: document.getElementById('search'),
     counterEl  : document.getElementById('counter'),
     hooksBar   : document.getElementById('hooksBar'),
+	activeGameBtn: document.getElementById('activeGame'),
+	activeGameInline: document.getElementById('activeGameInline'),
     // modal
     modal      : document.getElementById('modal'),
     modalClose1: document.getElementById('modal-close'),

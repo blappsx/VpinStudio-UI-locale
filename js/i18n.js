@@ -21,6 +21,15 @@ export const messages = {
     // Hooks / system
     mute: "Mute",
     unmute: "Unmute",
+    updates: "⬆️ Updates",
+    updatesTitle: "Installed components",
+    installedVersion: "Installed Version",
+    latestReleaseVersion: "Latest Released Version",
+    githubUrl: "Github URL",
+    notInstalled: "Not installed",
+    upToDate: "Up to date",
+    updateAvailable: "Update available",
+    noComponents: "No components to display.",
     // Modal
     techSheet: "Technical sheet",
     mName: "Name",
@@ -43,7 +52,11 @@ export const messages = {
     mLink2: "Link 2",
     mLaunchers: "Launchers",
     mNotes: "Notes",
-    close: "Close"
+    close: "Close",
+	activeGameGeneric: "🎮 Active: —",
+	activeGameWithName: "🎮 Active: {name}",
+	activeGameNone: "🎮 Active: none",
+	lastGameWithName: "🎮 Last: {name}"
   },
   fr: {
     title: "Gestion des Tables VpinStudio",
@@ -66,6 +79,15 @@ export const messages = {
     // Hooks / système
     mute: "Muet",
     unmute: "Son",
+    updates: "⬆️ Updates",
+    updatesTitle: "Logiciels installés",
+    installedVersion: "Version installée",
+    latestReleaseVersion: "Dernière version publiée",
+    githubUrl: "URL Github",
+    notInstalled: "Non installé",
+    upToDate: "À jour",
+    updateAvailable: "Mise à jour disponible",
+    noComponents: "Aucun composant à afficher.",
     // Modal
     techSheet: "Fiche technique",
     mName: "Nom",
@@ -88,7 +110,11 @@ export const messages = {
     mLink2: "Lien 2",
     mLaunchers: "Lanceurs",
     mNotes: "Notes",
-    close: "Fermer"
+    close: "Fermer",
+	activeGameGeneric: "🎮 Actif : —",
+	activeGameWithName: "🎮 Actif : {name}",
+	activeGameNone: "🎮 Actif : aucune",
+	lastGameWithName: "🎮 Dernière : {name}"
   }
 };
 

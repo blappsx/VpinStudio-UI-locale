@@ -15,11 +15,15 @@
 			<img id="avatar" class="avatar" alt="Cabinet avatar" />
 			<div class="brand-meta">
 			  <h1 class="page-title" data-i18n="title">Gestion des Tables VpinStudio</h1>
-			  <div class="sysline">
-				<span id="sysName">—</span>
-				<span class="sep">•</span>
-				<span id="sysVersion">—</span>
-			  </div>
+				<div class="sysline">
+					<span id="sysName">—</span>
+					<span class="sep">•</span>
+					<span id="sysVersion">—</span>
+					<span class="sep">•</span>
+					<button id="updatesBtn" class="link-btn">Updates</button>
+					<span class="sep">•</span>
+					<span id="activeGameInline" class="clickable">—</span>
+				</div>
 			</div>
 		  </div>
 
@@ -59,7 +63,7 @@
 
 	<!-- Bouton Restart + Hooks -->
 	<div class="card mb-12" id="controls">
-	  <div class="row gap-12">
+	  <div class="row gap-12 controls-row">
 		<button id="restart">🔁 Restart Pinup Popper</button>
 
 		<!-- Barre de hooks (boutons générés dynamiquement) -->
