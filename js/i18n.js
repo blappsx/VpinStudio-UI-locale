@@ -56,7 +56,9 @@ export const messages = {
 	activeGameGeneric: "🎮 Active: —",
 	activeGameWithName: "🎮 Active: {name}",
 	activeGameNone: "🎮 Active: none",
-	lastGameWithName: "🎮 Last: {name}"
+	lastGameWithName: "🎮 Last: {name}",
+	viewList: "List",
+	viewGrid: "Thumbnails"
   },
   fr: {
     title: "Gestion des Tables VpinStudio",
@@ -114,7 +116,9 @@ export const messages = {
 	activeGameGeneric: "🎮 Actif : —",
 	activeGameWithName: "🎮 Actif : {name}",
 	activeGameNone: "🎮 Actif : aucune",
-	lastGameWithName: "🎮 Dernière : {name}"
+	lastGameWithName: "🎮 Dernière : {name}",
+	viewList: "Liste",
+  viewGrid: "Miniatures"
   }
 };
 

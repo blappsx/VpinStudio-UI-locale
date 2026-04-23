@@ -53,21 +53,40 @@
       </div>
 
       <!-- Ligne 2 : Compteur + Recherche -->
-      <div class="row gap-12 between mt-6">
-        <div class="counter" id="counter">0 / 0</div>
-        <label class="search">
-          <input id="search" type="search" data-i18n-placeholder="search" placeholder="Rechercher une table ou un ID…">
-        </label>
-      </div>
-    </div>
+		<div class="row gap-12 between mt-6">
+			<div class="row gap-12">
+				<div class="counter" id="counter">0 / 0</div>
+				<div class="view-toggle" id="viewToggle">
+				  <button class="view-btn" data-view="list" title="Liste">📋</button>
+				  <button class="view-btn" data-view="grid" title="Miniatures">🖼️</button>
+				</div>
+			  </div>
+			  <label class="search">
+				<input id="search" type="search" data-i18n-placeholder="search" placeholder="Rechercher une table ou un ID…">
+			  </label>
+			</div>
+		</div>
 
 	<!-- Bouton Restart + Hooks -->
-	<div class="card mb-12" id="controls">
-	  <div class="row gap-12 controls-row">
-		<button id="restart">🔁 Restart Pinup Popper</button>
+	<div class="card mb-12 controls-card" id="controls">
+	  <button
+		id="controlsToggle"
+		class="controls-toggle"
+		type="button"
+		aria-expanded="true"
+		aria-controls="controlsBody"
+	  >
+		<span class="controls-toggle-label">Hooks & Frontend</span>
+		<span class="controls-toggle-icon">▾</span>
+	  </button>
 
-		<!-- Barre de hooks (boutons générés dynamiquement) -->
-		<div id="hooksBar" class="hooks-bar" aria-label="Hooks disponibles"></div>
+	  <div id="controlsBody" class="controls-body">
+		<div class="row gap-12 controls-row">
+		  <button id="restart">🔁 Restart Pinup Popper</button>
+
+		  <!-- Barre de hooks (boutons générés dynamiquement) -->
+		  <div id="hooksBar" class="hooks-bar" aria-label="Hooks disponibles"></div>
+		</div>
 	  </div>
 	</div>
 

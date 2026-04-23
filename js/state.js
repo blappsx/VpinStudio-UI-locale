@@ -7,7 +7,9 @@ export const state = {
     emuId: null,
     search: '',
     sort: { key: 'index', dir: 1 },
-    lang: 'fr'               // <-- ajouté
+    lang: 'fr',
+	viewMode: 'list',
+	controlsCollapsed: false
   }),
   // données en mémoire
   wheelCache: new Map(),
@@ -15,7 +17,12 @@ export const state = {
   filteredGames: [],
 
   // refs DOM (remplies par initDOM)
-  dom: {}
+  dom: {
+	hooksBar   : document.getElementById('hooksBar'),
+    controlsToggle: document.getElementById('controlsToggle'),
+    controlsBody  : document.getElementById('controlsBody'),
+	activeGameBtn: document.getElementById('activeGame'),
+  }
 };
 
 export function initDOM() {
@@ -41,5 +48,8 @@ export function initDOM() {
     modalTitle : document.getElementById('modal-title'),
 	//langue
 	langSelect : document.getElementById('lang'),
+	viewToggle: document.getElementById('viewToggle'),
+	controlsToggle: document.getElementById('controlsToggle'),
+    controlsBody  : document.getElementById('controlsBody'),
   };
 }

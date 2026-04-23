@@ -82,9 +82,27 @@ import { openComponentsModal } from './components.js';
 
 
 function applyPrefsToUI() {
-  const { baseInput, searchInput } = state.dom;
-  if (baseInput && state.prefs.base) baseInput.value = state.prefs.base;
-  if (searchInput) searchInput.value = state.prefs.search || '';
+	const { baseInput, searchInput, controlsToggle, controlsBody } = state.dom;
+
+	if (baseInput && state.prefs.base) baseInput.value = state.prefs.base;
+	if (searchInput) searchInput.value = state.prefs.search || '';
+	const { viewToggle } = state.dom;
+
+	if (viewToggle) {
+	  viewToggle.querySelectorAll('.view-btn').forEach(btn => {
+		btn.classList.toggle(
+		  'active',
+		  btn.dataset.view === (state.prefs.viewMode || 'list')
+		);
+	  });
+	}
+
+	if (controlsToggle && controlsBody) {
+	  const collapsed = !!state.prefs.controlsCollapsed;
+	  controlsBody.hidden = collapsed;
+	  controlsToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+	  controlsToggle.classList.toggle('is-collapsed', collapsed);
+	}
 }
 
 async function loadEmulatorsUI() {
@@ -162,7 +180,10 @@ function wireHeader() {
     restartBtn,
     activeGameInline,
     updatesBtn,
-    statusEl
+    statusEl,
+	viewSelect,
+	controlsToggle,
+	controlsBody
   } = state.dom;
 
   refreshBtn.addEventListener('click', async () => {
@@ -229,11 +250,53 @@ function wireHeader() {
     });
   }
 
-  if (updatesBtn) {
-    updatesBtn.addEventListener('click', async () => {
-      await openComponentsModal();
-    });
-  }
+	if (updatesBtn) {
+		updatesBtn.addEventListener('click', async () => {
+		  await openComponentsModal();
+		});
+	}
+	if (controlsToggle && controlsBody) {
+	  controlsToggle.addEventListener('click', () => {
+		const collapsed = !controlsBody.hidden;
+		controlsBody.hidden = collapsed;
+
+		controlsToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+		controlsToggle.classList.toggle('is-collapsed', collapsed);
+
+		state.prefs.controlsCollapsed = collapsed;
+		savePrefs(state.prefs);
+	  });
+	}
+	if (viewSelect) {
+		viewSelect.addEventListener('change', () => {
+			state.prefs.viewMode = viewSelect.value || 'list';
+			savePrefs(state.prefs);
+			renderTable();
+			updateCounter();
+		});
+	}
+	const { viewToggle } = state.dom;
+
+	if (viewToggle) {
+	  viewToggle.addEventListener('click', (e) => {
+		const btn = e.target.closest('.view-btn');
+		if (!btn) return;
+
+		const mode = btn.dataset.view;
+		if (!mode) return;
+
+		state.prefs.viewMode = mode;
+		savePrefs(state.prefs);
+
+		// UI active
+		viewToggle.querySelectorAll('.view-btn').forEach(b =>
+		  b.classList.toggle('active', b === btn)
+		);
+
+		renderTable();
+		updateCounter();
+	  });
+	}
 }
 
 // ---------- BOOT ----------
