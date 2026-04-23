@@ -417,3 +417,132 @@ tr.row-clickable:active { background: rgba(56,189,248,0.18); }
   opacity: .7;
   cursor: default;
 }
+
+.controls-row {
+  align-items: flex-start;
+}
+
+#updatesBtn {
+  background: #334155;
+  color: #e5e7eb;
+}
+#updatesBtn:hover:not(:disabled) {
+  background: #1f2937;
+}
+
+.components-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.component-item + .component-item {
+  padding-top: 8px;
+  border-top: 1px solid var(--br-soft);
+}
+
+.component-title {
+  margin: 0 0 14px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.component-grid {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 12px 16px;
+}
+
+.component-label {
+  color: #f8fafc;
+  font-weight: 500;
+}
+
+.component-value {
+  color: #e5e7eb;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.component-value.is-latest {
+  color: var(--pri);
+  font-weight: 700;
+}
+
+.component-value.is-outdated {
+  color: #f59e0b;
+  font-weight: 700;
+}
+
+.component-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid var(--br);
+  background: #0b1220;
+  color: #cbd5e1;
+}
+
+.component-badge.is-ok {
+  color: var(--pri);
+  border-color: rgba(34,197,94,.35);
+}
+
+.component-badge.is-warn {
+  color: #f59e0b;
+  border-color: rgba(245,158,11,.35);
+}
+.component-badge.is-missing {
+  color: #9ca3af;
+  border-color: #4b5563;
+}
+.component-item.is-missing {
+  opacity: 0.5;
+}
+
+.component-item.is-missing .component-title,
+.component-item.is-missing .component-label,
+.component-item.is-missing .component-value {
+  color: #9ca3af !important;
+}
+@media (max-width: 640px) {
+  .component-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--link);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+  font-weight: 600;
+}
+
+.link-btn:hover {
+  text-decoration: underline;
+  color: #93c5fd;
+}
+#activeGame {
+  background: #334155;
+  color: #e5e7eb;
+}
+
+#activeGame:hover:not(:disabled) {
+  background: #475569;
+}
+.clickable {
+  cursor: pointer;
+  color: #c7d2fe;
+  font-weight: 500;
+}
+
+.clickable:hover {
+  text-decoration: underline;
+}

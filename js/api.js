@@ -46,6 +46,13 @@ export const getAvatar = () =>
 export const getFrontendInfo = () =>
   fetchJSON(api(base(), '/frontend'));
 
+export const getComponents = () =>
+  fetchJSON(api(base(), '/components'));
+
 // Récupère les highscores d'une table
 export const getHighscores = (gameId) =>
   fetchJSON(api(base(), `/games/scores/${gameId}`));
+  
+// Récupère le status du flip
+ export const getGameStatus = () =>
+  fetchJSON(api(base(), '/gamestatus'));

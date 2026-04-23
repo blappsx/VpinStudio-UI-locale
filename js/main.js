@@ -73,11 +73,12 @@ import { state, initDOM } from './state.js';
 import { savePrefs } from './utils.js';
 import { getEmulators, getGamesKnowns, getRestart, putPlayGame, getFrontendLaunch } from './api.js';
 import { applySortFilter, renderTable, updateCounter } from './table.js';
-import { wireModalClose } from './modal.js';
+import { wireModalClose, openDetails } from './modal.js';
 import { loadHooksUI, wireHooksBar } from './hooks.js';
 import { loadSystemHeader } from './header.js';
-import { updateRestartButtonLabel } from './frontend.js';
+import { updateRestartButtonLabel, updateActiveGameButtonLabel, updateActiveGameInline } from './frontend.js';
 import { setLang, applyI18nToDOM } from './i18n.js';
+import { openComponentsModal } from './components.js';
 
 
 function applyPrefsToUI() {
@@ -153,95 +154,137 @@ function wireTableActions() {
 }
 
 function wireHeader() {
-  const { refreshBtn, baseInput, emuSelect, searchInput, restartBtn, statusEl } = state.dom;
+  const {
+    refreshBtn,
+    baseInput,
+    emuSelect,
+    searchInput,
+    restartBtn,
+    activeGameInline,
+    updatesBtn,
+    statusEl
+  } = state.dom;
 
-  refreshBtn.addEventListener('click', async ()=> {
+  refreshBtn.addEventListener('click', async () => {
     refreshBtn.disabled = true;
     state.prefs.base = baseInput.value.trim() || state.prefs.base;
     state.prefs.emuId = emuSelect.value || state.prefs.emuId;
     savePrefs(state.prefs);
-	await loadSystemHeader();
-    await loadEmulatorsUI();
-	await updateRestartButtonLabel();
 
-    if (state.prefs.emuId && [...emuSelect.options].some(o => String(o.value)===String(state.prefs.emuId))) {
+    await loadSystemHeader();
+    await loadEmulatorsUI();
+    await updateRestartButtonLabel();
+    await updateActiveGameInline();
+
+    if (state.prefs.emuId && [...emuSelect.options].some(o => String(o.value) === String(state.prefs.emuId))) {
       emuSelect.value = String(state.prefs.emuId);
     }
+
     await loadHooksUI();
     await loadGamesUI();
     refreshBtn.disabled = false;
   });
 
-  baseInput.addEventListener('change', async ()=> {
-    state.prefs.base = baseInput.value.trim(); savePrefs(state.prefs);
+  baseInput.addEventListener('change', async () => {
+    state.prefs.base = baseInput.value.trim();
+    savePrefs(state.prefs);
+
     await loadHooksUI();
-	await loadSystemHeader();
-	await updateRestartButtonLabel();
-
-
+    await loadSystemHeader();
+    await updateRestartButtonLabel();
+    await updateActiveGameInline();
   });
 
-  emuSelect.addEventListener('change', async ()=> {
-    state.prefs.emuId = emuSelect.value; savePrefs(state.prefs);
+  emuSelect.addEventListener('change', async () => {
+    state.prefs.emuId = emuSelect.value;
+    savePrefs(state.prefs);
     await loadGamesUI();
   });
 
-  searchInput.addEventListener('input', ()=> {
-    state.prefs.search = searchInput.value; savePrefs(state.prefs);
-    applySortFilter(); renderTable(); updateCounter();
+  searchInput.addEventListener('input', () => {
+    state.prefs.search = searchInput.value;
+    savePrefs(state.prefs);
+    applySortFilter();
+    renderTable();
+    updateCounter();
   });
 
-  restartBtn.addEventListener('click', async ()=> {
+  restartBtn.addEventListener('click', async () => {
     restartBtn.disabled = true;
     try {
-      const txt = await getRestart();
+      await getRestart();
       statusEl.innerHTML = `<span class="ok">🔁 Frontend redémarré</span> • ${new Date().toLocaleString()}`;
     } catch (err) {
-      statusEl.innerHTML = `<span class="err">Erreur restart :</span> ${err.message||err}`;
+      statusEl.innerHTML = `<span class="err">Erreur restart :</span> ${err.message || err}`;
     } finally {
       restartBtn.disabled = false;
     }
   });
+
+  if (activeGameInline) {
+    activeGameInline.addEventListener('click', async () => {
+      const id = activeGameInline.dataset.gameid;
+      if (!id) return;
+      await openDetails(id);
+    });
+  }
+
+  if (updatesBtn) {
+    updatesBtn.addEventListener('click', async () => {
+      await openComponentsModal();
+    });
+  }
 }
 
 // ---------- BOOT ----------
-(async function boot(){
-	initDOM();
-	// Langue : depuis prefs, sinon FR par défaut
-	setLang(state.prefs.lang || 'fr');
-	applyI18nToDOM();
-	// positionne la valeur du select
-	if (state.dom.langSelect) state.dom.langSelect.value = state.prefs.lang || 'fr';
+(async function boot() {
+  initDOM();
 
-	applyPrefsToUI();
-	await updateRestartButtonLabel();
-	await loadSystemHeader();
-	wireModalClose();
-	wireHooksBar();
-	wireTableActions();
-	wireHeader();
-	
-	if (state.dom.langSelect) {
-	  state.dom.langSelect.addEventListener('change', async () => {
-		state.prefs.lang = state.dom.langSelect.value;
-		savePrefs(state.prefs);
-		setLang(state.prefs.lang);
-		applyI18nToDOM();
-		// Met à jour ce qui dépend de la langue :
-		// - libellé Restart dynamique
-		// - re-render du tableau (boutons/headers)
-		await updateRestartButtonLabel();
-		applySortFilter();
-		renderTable();
-	  });
-	}
+  setLang(state.prefs.lang || 'fr');
+  applyI18nToDOM();
 
+  if (state.dom.langSelect) {
+    state.dom.langSelect.value = state.prefs.lang || 'fr';
+  }
+
+  applyPrefsToUI();
+
+  await loadSystemHeader();
+  await updateRestartButtonLabel();
+  await updateActiveGameInline();
+
+  wireModalClose();
+  wireHooksBar();
+  wireTableActions();
+  wireHeader();
+
+  if (state.dom.langSelect) {
+    state.dom.langSelect.addEventListener('change', async () => {
+      state.prefs.lang = state.dom.langSelect.value;
+      savePrefs(state.prefs);
+      setLang(state.prefs.lang);
+      applyI18nToDOM();
+
+      await updateRestartButtonLabel();
+      await updateActiveGameInline();
+
+      applySortFilter();
+      renderTable();
+    });
+  }
 
   await loadEmulatorsUI();
-  if (state.prefs.emuId && [...state.dom.emuSelect.options].some(o => String(o.value)===String(state.prefs.emuId))) {
+
+  if (state.prefs.emuId && [...state.dom.emuSelect.options].some(o => String(o.value) === String(state.prefs.emuId))) {
     state.dom.emuSelect.value = String(state.prefs.emuId);
   }
+
   await loadHooksUI();
   await loadGamesUI();
-  applySortFilter(); renderTable();
+  applySortFilter();
+  renderTable();
+  
+	setInterval(() => {
+		updateActiveGameInline();
+	}, 30000);
 })();
