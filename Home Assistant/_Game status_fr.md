@@ -138,7 +138,7 @@ template:
         state: >
           {% set gid = states('sensor.vpin_target_game_id') | int(0) %}
           {% if gid > 0 %}
-            http://ADRESSE_IP:PORT/api/v1/media/{{ gid }}/Wheel/
+            http://ADRESSE_IP:PORT/api/v1/media/{{ gid }}/Wheel
           {% else %}
             /local/placeholder_vpin.png
           {% endif %}
